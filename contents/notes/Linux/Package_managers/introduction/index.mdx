@@ -1,0 +1,102 @@
+# Package managers
+
+### Step-by-Step package installation with DNF:
+
+1. **Syntax Validation:**
+   - DNF first checks the syntax of the command to ensure it follows the correct format (`dnf install package_name`, e.g., `dnf install wget`).
+   - If there are any syntax errors (like incorrect command format), DNF will report these errors to the user.
+
+2. **Package Availability:**
+   - DNF checks its configured repositories (defined in `/etc/dnf/dnf.conf` and `/etc/yum.repos.d/`) to verify that the requested package is available.
+   - It attempts to retrieve metadata from these repositories.
+	> Metadata includes structured information about the packages available, dependencies, versions, etc.
+
+3. **Package Retrieval:**
+   - Once DNF confirms the package is available and repositories are synchronized, it proceeds to download the package and any necessary dependencies.
+   - It retrieves RPM files (packages) from the remote repositories specified in its configuration.
+
+4. **Package Installation:**
+   - **GPG Validation:**
+	DNF verifies the authenticity of the packages it downloads using GPG (GNU Privacy Guard):
+     		- DNF installs the RPM package, along with the corresponding GPG keys and the digital signature file containing the encrypted hash (digital signature) of the package.
+		![pm-1](/Linux/Package_managers/pm-1.png)
+     		- Using the developer's public GPG key, DNF decrypts the digital signature file to retrieve the original hash of the package.
+		![pm-2](/Linux/Package_managers/pm-2.png)
+     		- DNF computes the hash of the downloaded package and compares it with the retrieved hash to ensure integrity.
+		![pm-3](/Linux/Package_managers/pm-3.png)
+
+5. **Verification:**
+   - After installation, DNF verifies that the installation process completed successfully. This involves checking if the package is correctly installed and available for use on the system.
+
+6. **Cleanup:**
+   - Once the package is successfully installed and verified, DNF performs cleanup.
+   - It removes any temporary files and cached data that were used during the installation process. This helps in freeing up disk space and maintaining system cleanliness.
+
+#### In short:
+
+- **Syntax**: Ensure the command format (`dnf install package_name`) is correct.
+- **Availability**: Verify that DNF checks the configured repositories and finds `wget` or any specified package.
+- **Retrieval**: Confirm that DNF downloads the necessary RPM files.
+- **GPG Validation**: Check that DNF performs GPG validation correctly by decrypting and verifying the digital signature.
+- **Verification**: Validate that DNF confirms successful installation of the package.
+- **Cleanup**: Ensure DNF removes temporary files and cached data after installation.
+
+---
+
+### Repository access:
+
+Repos are stored in the `/etc/yum.repos.d/` directory (or configured in `/etc/dnf/dnf.conf`) and have an extention of **.repo**.
+In one repo file we can contain multiple **Stanza/Sections**, each section is declared by `[name]` at the beginning followed by the directives used.
+For example:
+
+```bash
+[epel]
+name=Extra Packages for Enterprise Linux 8 - $basearch
+# It is much more secure to use the metalink, but if you wish to use a local mirror
+# place its address here.
+#baseurl=https://download.example/pub/epel/8/Everything/$basearch
+metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-8&arch=$basearch&infra=$infra&content=$contentdir
+enabled=1
+gpgcheck=1
+countme=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8
+
+[epel-debuginfo]
+name=Extra Packages for Enterprise Linux 8 - $basearch - Debug
+# It is much more secure to use the metalink, but if you wish to use a local mirror
+# place its address here.
+#baseurl=https://download.example/pub/epel/8/Everything/$basearch/debug
+metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-debug-8&arch=$basearch&infra=$infra&content=$contentdir
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8
+gpgcheck=1
+
+[epel-source]
+name=Extra Packages for Enterprise Linux 8 - $basearch - Source
+# It is much more secure to use the metalink, but if you wish to use a local mirror
+# place it's address here.
+#baseurl=https://download.example/pub/epel/8/Everything/source/tree/
+metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-source-8&arch=$basearch&infra=$infra&content=$contentdir
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8
+gpgcheck=1
+```
+
+These are the more common directives for a section:
+1. **name**: Descriptive label for the repository.
+2. **baseurl**: Specifies the base URL for fetching packages. Variables like `$releasever` and `$basearch` are placeholders that are substituted with the current release version and architecture of the system.
+3. **enabled**: Controls whether the repository is active (`1` for active, `0` for inactive).
+4. **gpgcheck**: Enables or disables GPG signature checking for packages.
+5. **metadata_expire**: Specifies how long the metadata (information about available packages) is considered valid before it expires and needs to be refreshed.
+6. **gpgkey**: URL or path to the GPG key file used to verify the authenticity of packages.
+
+
+
+Here is a list of common yum/dnf repo files variables:
+
+| Variable       | Description                                                                                         |
+|----------------|-----------------------------------------------------------------------------------------------------|
+| `$releasever`  | Represents the release version of Red Hat Enterprise Linux.                                         |
+| `$arch`        | Represents the system's CPU architecture as returned by Python's `os.uname()` function.             |
+| `$basearch`    | Represents the base architecture of the system.                                                     |
+| `$YUM0` to `$YUM9` | These variables are replaced with the values of corresponding shell environment variables, if present. |

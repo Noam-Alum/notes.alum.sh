@@ -1,0 +1,146 @@
+# BIND configuration
+
+> BIND is a dns service, known as: **named**.
+
+## How to confiigure bind:
+
+### Options section:
+
+- **ACL:**
+    ACL, which stands for Access Control List, is a list of IP addresses that are either allowed to or restricted from querying the server, based on a specific set of rules.
+    ```text
+    acl Allowed-ips {
+        10.0.0.1; 192.168.23.1; 192.168.23.15;
+    };
+    ```
+- **Recursion:**
+    Recursion is the concept of passing on a received query over to another nameserver - essentially bouncing off one server onto another.
+    ```text
+    recursion no;
+    ```
+    > This defines whether the server should provide recursive query behavior or iterative query behavior.
+    > The difference between the two of these is that, if your server is performing recursive behavior, it handles the full set of tasks, involving either consulting with its cache or reaching out to root, TLD, and authoritative servers in order to retrieve the answer to the query. It basically becomes fully responsible for that query.
+    > Iterative behavior, on the other hand, will generally just refer the query over to another resolver, so that it can handle the recursive workload instead.
+
+- **Transfer:**
+    In the context of BIND/named, to transfer a zone means to provide or take a copy of all the information related to a zone, to/from the local server or a remote server.
+    ```text
+    allow-transfer    { "none"; };
+    ```
+    > Typicly closed due to its vulnerability to a DDOS (Or DOS) attack.
+
+**File paths:**
+
+| Name                 | Path                              |
+|----------------------|-----------------------------------|
+| directory            | "/var/named"; // the default      |
+| pid-file             | "/var/run/named/named.pid"        |
+| dump-file            | "data/cache_dump.db"              |
+| statistics-file      | "data/named_stats.txt"            |
+
+### Logging section:
+
+This section should look something liket this:
+
+```text
+logging {
+   [ channel channel_name {
+     ( file path name
+         [ versions ( number | unlimited ) ]
+         [ size size_spec ]
+       | syslog syslog_facility
+       | stderr
+       | null );
+     [ severity (critical | error | warning | notice |
+                 info | debug [ level ] | dynamic ); ]
+     [ print-category yes | no; ]
+     [ print-severity yes | no; ]
+     [ print-time yes | no; ]
+   }; ]
+   [ category category_name {
+     channel_name ; [ channel_name ; ... ]
+   }; ]
+};
+```
+
+**For example**:
+
+```text
+channel default_debug {
+    file "data/named.run";
+    print-time yes;
+    print-severity yes;
+    print-category yes;
+    severity warning;
+};
+```
+
+File being the file to log to, any print* option is to custiomize how the log should look, and **severity** is to select which information to log. (Between debug to critical).
+
+> | **Severity** | **Description**                                      |
+> |--------------|-------------------------------------------------------------------------------------------------------------------------------|
+> | **critical** | only critical errors.                                                                                                         |
+> | **error**    | error and above.                                                                                                              |
+> | **warning**  | warning and above.                                                                                                            |
+> | **notice**   | notice and above.                                                                                                             |
+> | **info**     | info and above - log starting to get chatty.                                                                                  |
+> | **debug**    | debug and above. Various debug levels can be defined with 'debug 0' meaning no debugging.                                     |
+> | **dynamic**  | debug and above. Means assume the global debug level defined by either the command line parameter -d or by running rndc trace |
+
+### Zone section:
+
+The zone section is supposed to inform BIND of a given *zone*, for example:
+
+```text
+zone "jetdomains.org.il" {
+    type master;
+    file "/var/named/jetdomains.org.il.zone";
+};
+```
+
+**Genneral stracture:**
+```text
+zone domain_name [ ( in | hs | hesiod | chaos ) ] { 
+  type master;
+  file path_name;
+  [ forward ( only | first ); ]
+  [ forwarders { [ ip_addr ; [ ip_addr ; ... ] ] }; ]
+  [ check-names ( warn | fail | ignore ); ]
+  [ allow-update { address_match_list }; ]
+  [ allow-query { address_match_list }; ]
+  [ allow-transfer { address_match_list }; ]
+  [ dialup yes_or_no; ]
+  [ notify (yes_or_no | explicit ); ]
+  [ also-notify { ip_addr; [ ip_addr; ... ] }; ]
+  [ ixfr-base  path_name; ]
+  [ pubkey number number number string; ]
+};
+```
+
+#### Zone files:
+
+Zone files have an file extention of `.db` and should contain at least the following:
+
+```text
+$TTL 86400
+@       IN      SOA     dns.example.com. admin@youdomain.com (
+                    2024051101      ; Serial
+                    3600            ; Refresh
+                    1800            ; Retry
+                    604800          ; Expire
+                    86400           ; Minimum TTL
+
+; Name Servers
+@       IN      NS      dns.alum.sh.
+@       IN      NS      dns2.alum.sh.
+```
+
+Followed buy the *Hosts* section, which confiigures the *records* of the domain, for example:
+```text
+; Hosts
+@       IN      A	3.70.101.22
+@	IN	A	52.58.254.255
+www     IN      CNAME   example.org.
+```
+
+> **@** represents the apex domain, (example.org), while **www** represents a sub domain (www.example.org).

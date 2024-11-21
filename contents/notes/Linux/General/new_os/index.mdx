@@ -1,0 +1,110 @@
+# New OS
+
+These are the instructions for a new OS for Noam.
+
+## Prerequisites
+
+1. External disk
+2. Two USB disks
+3. Working vpn setup
+4. New home backup server
+
+## Security
+
+### Data
+
+Some of the data should be encrypted on a separate external disk, with the key residing on a different USB disk, everything else can (and will) be stored on the disk included with the computer.
+This is to keep the sensitive information physically separate from the computer and encrypted, while also keeping the key separate. (One would need to hold both the external disk and the USB disk to access the sensitive data.)
+
+**Encrypted:**
+
+- `/etc`
+- `/home`
+- `/root`
+- `/var`
+
+**Unencrypted:**
+
+- `/boot`
+- `/usr`
+- `/tmp`
+- `/opt`
+- `/proc` - N/A
+- `/dev`
+- `/run` - N/A
+
+### Passwords
+
+Passwords would generally be recreated each time a service needs to be accessed (via the "Forgot password" option). Any password that HAS to be saved somewhere would be saved **Encrypted** on the USB disk mentioned earlier, with the key to decrypt saved on the external disk. (So to gain access to those passwords, you have to first decrypt the disk, then decrypt the passwords via a key on the disk.)
+
+### IoT
+
+**Firewall:**
+
+All incoming ports should be closed unless *Noam* opens them.
+
+**Internet access:**
+
+All traffic should be routed via the VPN setup.
+
+### In the OS
+
+**Use Firejail on Chrome:** Restricting the running environment of Chrome.
+
+> The following guide should be enough:
+    [Run Chrome in a sandbox](https://easylinuxtipsproject.blogspot.com/p/sandbox.html#google_vignette)
+
+**Remove all LibreOffice apps:** Personal preference; using Google apps seems better.
+
+**Remove all non-legacy apps:** All the apps that need to be installed are listed in the Apps section.
+
+### While working in JetServer
+
+A Live CD would be used.
+
+**The following apps should be installed:**
+
+1. AnyDesk
+2. Slack
+3. Chrome
+4. Remmina
+
+**The following hosts file configurations should be included:**
+
+```
+192.168.-.- teampass.jetserver.net
+192.168.-.- old-teampass.jetserver.net
+192.168.-.- kb.jetserver.net kb.jetserver.co.il
+192.168.-.- vintagepass.jetserver.net
+-.-.-.- whmcscleanstage.jetserver.net
+```
+
+**Don't forget:**
+
+Transfer the private key to the Live CD, and add `alias box='ssh -p2223 noam@-------.jetserver.net'` to the *bashrc* file.
+
+## Apps
+
+All non-legacy apps that need to be installed are listed below:
+
+1. Discord
+2. NVIM
+3. Chrome (With Firejail)
+4. git
+
+## Configurations
+
+Any `make_backup` configurations.
+
+### /etc
+
+**hosts**
+```
+-.-.-.- old.alum.sh
+```
+
+## Backups
+
+Backups of chosen unclassified files (or directories) are due daily to the home backup server, as plain text. That approach assumes that any data that might get lost can be replaced.
+
+Backups of the keys that can decrypt the external disk and the passwords on the USB stick should be printed on a piece of paper.

@@ -1,0 +1,63 @@
+# Administering Mail from the Command Line
+
+## Verifications
+
+> What is Exim? Click [here](?page=/docs/cPanel/Administration%20Tier%203%20|%20WHM%20Administration%20(CWA)/Mail_Administration_in_WHM.md)
+
+### Checking exim process
+
+1. **exiwhat:**
+    This command shows active connections being handled.
+
+### Checking connection to a mail server
+
+We can check the connection to a mail server by using the `telnet` command. telnet can be utilized to connect to various services including mail server such as **Dovecote**, for example:
+```bash
+KingAlum@Zurich# telnet s1.ea.upress.co.il 143
+Trying 169.56.75.250...
+Connected to 169.56.75.250.
+Escape character is '^]'.
+* OK [CAPABILITY IMAP4rev1 SASL-IR LOGIN-REFERRALS ID ENABLE IDLE NAMESPACE LITERAL+ STARTTLS AUTH=PLAIN AUTH=LOGIN] Dovecot ready.
+```
+This method is very usefull when experiencing errors while trying to send mail via a php script for example. (To verify that the mail server is not the issue)
+
+![Ports list](https://images.articulate.com/f:jpg%7Cpng,a:retain,b:fff/rise/courses/rtdwELwWKP55ZIBfGnf-TTLkF_4QaeUy/_TJx14qbqq8sSqqh.png)
+
+> For the sake of testing mail servers you can also use the `openssl` command, like so: `openssl s_client -connect 1.2.3.4:PORT`.
+
+## Exim logs
+
+### Exim log files location
+
+| **Description**              | **Path**                                  |
+|------------------------------|-------------------------------------------|
+| Main exim log                | /var/log/exim_mainlog                     |
+| Delivery rejections log      | /var/log/exim_rejectlog                   |
+| Severe errors log            | /var/log/exim_paniclog                    |
+| Dovecote & Spam assassin log | /var/log/maillog                          |
+| mailman logs                 | /usr/local/cpanel/3rdparty/mailman/logs/* |
+
+### Log format
+
+#### Exim ID and message ID
+
+> These IDs are guaranteed to be unique. 
+
+No two email messages ever sent will have identical message IDs. An email's message ID will follow it across MTAs (and through other mail-handling programs) and does not change.
+
+#### Message Status Indicators
+
+| Indicator | Description                    | Example                                                                                                 |
+|-----------|--------------------------------|---------------------------------------------------------------------------------------------------------|
+| `<=`      | Indicates message arrival      | `2015-03-13 09:20:29 1YWQRx-0008D8-LD <= root@hw1-x86.tech.cpanel.net ...`                              |
+| `=>`      | Indicates successful delivery.                             | `2015-03-11 10:35:36 1YVifY-0004Dw-KL => mary@cpanel.net ...`               |
+| `==`      | Indicates a "deferred" message, generally meaning delayed. | `2015-03-11 10:40:13 1YVik1-0004RW-Ef == root@hw1-x86.tech.cpanel.net ... ` |
+| `**`      | Indicates a delivery failure. | `2015-03-11 10:40:13 1YVik1-0004RW-Ef ** root@hw1-x86.tech.cpanel.net ...`                               |
+
+
+
+### Utilitis
+
+* **zcat:** `zcat` can be used to view (concatenate) zipped files without unzipping them.
+* **zgrep:** `zgrep` can use **regex** on compressed files without uncompressing it.
+* **exigrep:** `exigrep` is a special command-line utility for searching the Exim logs, it shows you all the log entries related to your search term.

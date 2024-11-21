@@ -1,0 +1,157 @@
+# How to create a repo on RHEL based systems
+
+> On *RHEL based systems* packages are called RPMs (**R**ed Hat **P**ackage **M**anager).
+
+RPM repository is a collection of RPM packages, metadata, and configuration files hosted on a server for easy installation and management on RPM-based Linux systems.
+
+---
+
+To create a repo we need a webserver (I assume you have one running) and to use the `createrepo_c` command.
+
+> If not installed run `dnf install createrepo_c`.
+
+### Creating the repository
+
+For the sake of this experiment I created a `VirtualHost` with a `DocumentRoot` that points to `/home/repotest/public_html/` and well focus on adding a package on `AlmaLinux`, `8`, `x86_64` named `noam-1.19.5-11.el8.x86_64.rpm`.
+
+The stracture of a repo in general is as follows:
+
+| Directory (Path)                 | Purpose and Usage                                                                                   |
+|----------------------------------|-----------------------------------------------------------------------------------------------------|
+| `[DOCUMENTROOT]/[DISTRO]/`       | Root directory for the RPM repository structure, replace `[DISTRO]` with your distribution name.    |
+| `[DOCUMENTROOT]/[DISTRO]/releases/` | Directory for organizing releases of the distribution (e.g., `33`, `8`, `7`).                       |
+| `[DOCUMENTROOT]/[DISTRO]/releases/[RELEASE]/` | Specific release version directory (e.g., `33` for Fedora 33).                                   |
+| `[DOCUMENTROOT]/[DISTRO]/releases/[RELEASE]/[ARCHITECTURE]/` | Architecture-specific directory (e.g., `x86_64` for 64-bit x86 architecture).           |
+| `[DOCUMENTROOT]/[DISTRO]/updates/` | Directory for updates related to the distribution.                                                 |
+| `[DOCUMENTROOT]/[DISTRO]/updates/[RELEASE]/` | Updates specific to a release version (e.g., `33`).                                                |
+| `[DOCUMENTROOT]/[DISTRO]/updates/testing/` | Optional: Directory for testing or pre-release updates.                                             |
+| `[DOCUMENTROOT]/[DISTRO]/updates/testing/[RELEASE]/` | Testing updates specific to a release version (e.g., `33`).                                      |
+| `[DOCUMENTROOT]/[DISTRO]/updates/testing/[RELEASE]/[ARCHITECTURE]/` | Testing updates for a specific architecture on a release version.                      |
+| `[DOCUMENTROOT]/[DISTRO]/keys/`   | Directory for storing GPG keys used to sign repository metadata and packages for verification.      |
+| `[DOCUMENTROOT]/[DISTRO]/README`  | Optional: README file providing information about the repository, its usage, and instructions.      |
+| `[DOCUMENTROOT]/[DISTRO]/releases/[RELEASE]/[ARCHITECTURE]/repodata/` | Directory containing repository metadata (`repomd.xml`, `primary.xml.gz`, etc.).                   |
+
+> Notes:
+> - `[DOCUMENTROOT]`: Replace with the actual path configured as `DocumentRoot` in your web server's virtual host configuration.
+> - `[DISTRO]`, `[RELEASE]`, `[ARCHITECTURE]`: Placeholders for distribution name, release version, and architecture names.
+
+So The directory tree would look this:
+
+> Using `el` in repository structures provides a standardized and recognizable identifier for distributions based on Red Hat Enterprise Linux (RHEL), ensuring clear organization and easy identification across systems and repositories.
+
+```text
+public_html/
+└── el
+    ├── keys
+    ├── README
+    └── releases
+        └── 8
+            └── x86_64
+                └── noam-1.19.5-11.el8.x86_64.rpm
+```
+
+Since we dont need the `updates` directory I did not include it.
+
+### Adding GPG validation
+
+First install `gnupg2` and `rpm-sign` by running:
+
+```bash
+sudo dnf install gnupg2 rpm-sign
+```
+
+> - **GnuPG2** is a command-line tool and library for encryption and digital signature operations, providing secure communication and data integrity verification.
+> - **rpm-sign** is a command-line tool used in RPM-based Linux distributions to sign RPM packages with cryptographic signatures, ensuring authenticity and integrity verification during installation.
+
+To achieve your goal of hosting the GPG key on your repository and configuring your repository file (`*.repo`) to use `gpgkey=URL` to pull it, here's a step-by-step guide. This assumes you have an RPM package (`my-package.rpm`) that you want to sign with your GPG key and make available in your repository.
+
+##### Step 1: Generate and Export GPG Key
+
+First, follow the steps to generate and export your GPG key as outlined earlier:
+
+1. **Generate a GPG Key Pair**:
+   ```bash
+   gpg --full-generate-key
+   ```
+   Take note of the GPG key ID (`[key ID]`).
+
+2. **Export the GPG Public Key**:
+   ```bash
+   gpg --export --armor [key ID] > public.key
+   ```
+   This creates `public.key` containing your GPG public key.
+
+3. **Move the Public Key to Repository Directory**:
+   Place `public.key` in the directory where your repository is hosted (`/home/repotest/public_html/el/keys`).
+
+4. **Add to RPM macro file:**
+	in the file `/etc/rpm/macros` add the following line:
+	```text
+	%_gpg_name [key ID]
+	```
+	You can check the [key ID] using `gpg --list-keys`
+
+##### Step 2: Sign Your RPM Package
+
+Sign your RPM package (`noam-1.19.5-11.el8.x86_64.rpm`) with your GPG private key:
+
+```bash
+rpm --addsign noam-1.19.5-11.el8.x86_64.rpm
+```
+This signs the RPM package using your GPG private key.
+
+---
+
+Note that we are missing a very imprtant directory, the **repodata** directory, it is created via the `createrepo_c` tool:
+
+> **createrepo_c** is a command-line tool for creating and managing YUM repositories on Red Hat-based Linux distributions by generating repository metadata from RPM packages.
+
+```bash
+[root@server x86_64]# createrepo_c /home/repotest/public_html/el/releases/8/x86_64/
+Directory walk started
+Directory walk done - 1 packages
+Temporary output repo path: /home/repotest/public_html/el/releases/8/x86_64/.repodata/
+Preparing sqlite DBs
+Pool started (with 5 workers)
+Pool finished
+```
+
+Now the directory tree looks like this:
+
+```bash
+public_html/
+└── el
+    ├── keys
+    │   └── public.key
+    ├── README
+    └── releases
+        └── 8
+            └── x86_64
+                ├── noam-1.19.5-11.el8.x86_64.rpm
+                └── repodata
+                    ├── 0d0b5898877f2da27d3ba9be4a52d1147da40b8ba04a009ec7542dd81f67d60d-primary.sqlite.bz2
+                    ├── 37507989cb1d6e79ec4f6cb5a39eb24ca7ee5f730d6bc3b322f24cc451c39655-primary.xml.gz
+                    ├── 505c124c143393cd664e5ca9ef36e467c8f2fd90e20b354cda062fd8b8221fb2-other.sqlite.bz2
+                    ├── 749a80626423b94425182b399bc81de2b8d079b696fc9d48e34069122c6a220b-filelists.xml.gz
+                    ├── e51556f20dfac13117ba3b3c5322efaa1eca47bea9e82a00742f10e2acfbe63a-other.xml.gz
+                    ├── fcc689839ff1f560c7d9cca91b68b8abebde4bb757cc72c3fa80a16901234512-filelists.sqlite.bz2
+                    └── repomd.xml
+```
+
+Great! we successfully created a repo from scratch :)
+
+### Creating a repo file (client side)
+
+We have a deep-dive explenation on this subject [here](page.php?page=docs/Linux/Package_managers/package_managers.md), so I'll just supply the file contents for this to work in this section:
+- **File path:** `/etc/yum.repos.d/`
+- **File name:** *noams-packages.repo*
+
+**Contents:**
+```text
+[Noam]
+name=Noam
+baseurl=https://learnings.alum.sh/HTML/repo/public_html/el/releases/$releasever/$basearch/
+enabled=1
+gpgkey=https://learnings.alum.sh/HTML/repo/public_html/el/keys/public.key
+gpgcheck=1
+```

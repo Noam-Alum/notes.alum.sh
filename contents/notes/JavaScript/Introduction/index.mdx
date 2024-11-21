@@ -1,0 +1,49 @@
+---
+lang: en
+title_en: "Introduction to javascript"
+description_en: "JavaScript is an interpreted language primarily executed by the V8 engine and supports both **synchronous** and **asynchronous** execution, it is extensively used in web browsers and server environments like Node.js."
+meta_image: "https://miro.medium.com/v2/resize:fit:720/format:webp/1*LyZcwuLWv2FArOumCxobpA.png"
+---
+
+# Introduction to javascript
+
+![Banner](https://miro.medium.com/v2/resize:fit:720/format:webp/1*LyZcwuLWv2FArOumCxobpA.png)
+
+JavaScript is an interpreted language primarily executed by the V8 engine and supports both **synchronous** and **asynchronous** execution, it is extensively used in web browsers and server environments like Node.js.
+
+![svsa](https://trio.dev/wp-content/uploads/2024/03/synchronous-vs-asynchronous.webp)
+
+> - **Synchronous:** Execution waits for a task to complete before moving on to the next.
+> - **Asynchronous:** Allows other tasks to proceed while waiting for a response.
+
+When working with JavaScript objects such as arrays, we create instances of these objects. These instances can utilize methods and properties defined for their types.
+
+For example, an array has a `length` property that returns the number of elements in the array.
+
+```javascript
+const numbers = [1, 2, 3, 4, 5];
+console.log(numbers.length); // Outputs: 5
+```
+
+> **Tip:** Use `const` to declare arrays and other data structures to avoid accidental reassignment.
+
+### Static and Instance Methods
+
+A function is considered *static* if it does not rely on instance-specific data. Static methods belong to the class itself rather than any specific instance. Here’s an example:
+
+```javascript
+// Instance method
+const numbers = [1, 2, 3, 4, 5];
+console.log(numbers.length); // Instance method used on array
+
+// Static method
+console.log(Math.floor(2.45)); // Static method used on Math class
+```
+
+### Naming Conventions
+
+- **Functions:** Use camelCase, e.g., `calculateTotal()`.
+- **Classes:** Use PascalCase (also known as UpperCamelCase), e.g., `UserAccount`.
+- **Variables:** Use camelCase, e.g., `totalAmount`.
+
+These conventions help in maintaining consistency and readability in JavaScript code.

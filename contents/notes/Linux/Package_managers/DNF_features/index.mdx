@@ -1,0 +1,65 @@
+# DNF features
+
+### DNF aliases
+
+##### `dnf alias [options] [list] [name...]`
+
+DNF allows users to add an alias to its arguments by utilizing the **alias** functionality, for example:
+
+> DNF saves the created aliases to the `/etc/dnf/aliases.d/USER.conf`.
+
+- `dnf alias add [NAME]='[VALUE]'`: This would create a new alias with the name [NAME] and would co-respond to the value given ([VALUE]).
+  For example:
+  ```bash
+  dnf alias add rm=remove
+  ```
+- `dnf alias delete [NAME]`: This would remove the alias with the name [NAME].
+  For example:
+  ```bash
+  dnf alias delete rm
+  ```
+- `dnf alias list`: This would list all aliases.
+
+### DNF autoremove command
+
+##### `dnf [options] autoremove`
+
+DNF lets users auto-remove all packages from the system that were originally installed as dependencies of user-installed packages, but which are no longer required by any such package.
+
+We can test that by running the `dnf autoremove`, note that **autoremove** is an alias to something like this `remove --setopt=clean_requirements_on_remove=true`.
+
+
+### Check Command
+
+##### `dnf [options] check [--dependencies] [--duplicates] [--obsoleted] [--provides]`
+
+Checks the local packagedb and produces information on any problems it finds. You can limit the checks to be performed by using the `--dependencies`, `--duplicates`, `--obsoleted` and `--provides` options (the default is to check everything).
+
+> **Package DB:** The local database that DNF uses to manage information about installed packages on your system.
+
+##### Check-Update command
+
+Checks if updates of the specified packages are available, if no [package-file-spec] is given, checks whether any updates at all are available for your system.
+
+> If it found an update the exit code would be 100.
+
+When there are updates available and a list of the updates will be printed.
+
+> Please note that having a specific newer version available for an installed package (and reported by `check-update`) does not imply that subsequent `dnf upgrade` will install it.
+  The difference is that `dnf upgrade` has restrictions (like package dependencies being satisfied) to take into account.
+
+### Clean command.
+
+Performs cleanup of temporary files kept for repositories.
+This includes any such data left behind from disabled or removed repositories as well as for different distribution release versions.
+
+- `dnf clean dbcache`
+  Removes cache files generated from the repository metadata. This forces DNF to regenerate the cache files the next time it is run.
+- `dnf clean expire-cache`
+  Marks the repository metadata expired. DNF will re-validate the cache for each repository the next time it is used.
+- `dnf clean metadata`
+  Removes repository metadata. Those are the files which DNF uses to determine the remote availability of packages. Using this option will make DNF download all the metadata the next time it is run.
+- `dnf clean packages`
+  Removes any cached packages from the system.
+- `dnf clean all`
+  Does all of the above.

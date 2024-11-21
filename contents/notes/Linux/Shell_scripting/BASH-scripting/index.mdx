@@ -1,0 +1,254 @@
+# Shell scripting
+
+Like a movie script we can *script* the actions we want to use on a shell, most Linux operating systems uses bash as the shell used by its users.
+You can check your shell by running the `echo "$SHELL"` command or by opening the "/etc/passwd" file.
+
+> A shell is a type of computer program called a command-line interpreter.
+
+Each shell script has a posfix of **.sh**, has to start with **#!** + **Path to shell** (For example /bin/bash), and has to have an executable premission.
+
+- Comments: to comment in a bash script we use **#**.
+
+For example:
+```sh
+#!/bin/bash
+
+echo "Hello"
+sleep 3
+echo "Bye"
+```
+
+## Variables
+
+To declare a variable we use the following syntax:
+```sh 
+#!/bin/bash
+
+# declare a name variable
+name="Noam"
+
+# use the name variable
+echo "my name is $name"
+```
+
+---
+
+On linux mechines we have **system Variables**, the OS uses them for its purposes.
+To check some of the **system variables** (eviorment variables) we can use the `printenv` command.
+```bash
+printenv
+```
+
+> For a list of common system variables refer [here](page.php?page=docs/Linux/Shell_scripting/system_variables.md).
+
+## User input
+
+To get user input its gennraly accepted to use the read binary, read allows you to read from stdin and store the data in a variable.
+
+```sh 
+#!/bin/bash
+
+read -p "What is your name: " name
+
+echo "My name is $name"
+```
+
+## Conditions
+
+Here are the gennral compersion operators for bash:
+
+| Operator | Description             | Example                   |
+|----------|-------------------------|---------------------------|
+| -eq      | is equal to             | if [ "$a" -eq "$b" ]     |
+| -ne      | is not equal to         | if [ "$a" -ne "$b" ]     |
+| -gt      | is greater than         | if [ "$a" -gt "$b" ]     |
+| -ge      | is greater than or equal| if [ "$a" -ge "$b" ]     |
+| -lt      | is less than            | if [ "$a" -lt "$b" ]     |
+| -le      | is less than or equal   | if [ "$a" -le "$b" ]     |
+| \<        | is less than            | (("$a" \< "$b"))          |
+| \<=       | is less than or equal   | (("$a" \<= "$b"))         |
+| \>        | is greater than         | (("$a" \> "$b"))          |
+| \>=       | is greater than or equal| (("$a" \>= "$b"))         |
+
+> Check `man test` for more information.
+
+We can use conditions in bash to make better dynamicly adapting scripts.
+
+- if:
+    ```sh 
+    #!/bin/bash
+    
+    # Get age
+    read -p "What is your age? " age
+
+    # Check if age is over 18
+    if [ $age -gt 18 ]; then
+        echo "The age is greater than 18"
+    fi
+    ```
+
+- else:
+    ```sh 
+    #!/bin/bash
+    
+    # Get age
+    read -p "What is your age? " age
+
+    # Check if age is over 18
+    if [ $age -gt 18 ]; then 
+        echo "The age is greater than 18" 
+    else
+        echo "The age is lower than 18"
+    fi
+    ```
+
+- elif:
+    ```sh 
+    #!/bin/bash
+    
+    # Get age
+    read -p "What is your age? " age
+
+    # Check if age is over 18
+    if [ $age -gt 18 ]; then 
+        echo "The age is greater than 18"
+    elif [ $age -eq 18 ]; then
+        echo "The age is 18"
+    else
+        echo "The age is lower than 18"
+    fi
+    ```
+
+## Loops
+
+- while:
+    ```bash
+    #!/bin/bash
+
+    name="noam"
+    i=0
+
+    while [ "$name" == "noam" ]; then
+        i++;
+
+        if [ i -gt 3 ]; then
+            name="shay"
+        fi
+    done
+    ```
+
+- for:
+   - range
+        ```bash
+        #!/bin/bash
+
+        start=1
+        end=5
+
+        for i in $(seq $start $end)
+        do
+            echo "$i"
+        done
+        ```
+    - objects
+        ```bash
+        #!/bin/bash
+
+        names="noam shay eli"
+
+        for name in $names
+        do
+            echo "Hello $name"
+        done
+        ```
+- case:
+    ```bash
+    #!/bin/bash
+
+    read -p "What is your name? : " name
+
+    case $name in
+
+    noam)
+        echo "Hello noam"
+    ;;
+
+    shay)
+        echo "hello shay"
+    ;;
+
+    eli)
+        echo "hello eli"
+    ;;
+
+    *)
+        echo "Unknown name"
+    ;;
+
+    esac
+    ```
+
+## Special operations
+
+
+
+**Sub shell:**
+
+A `sub shell` is when we create a shell child proccess from within another shell.
+We can achive that with two main ways:
+
+
+1. ```bash
+    echo "$(ls -al)"
+    ```
+2. ```bash
+    echo "`ls -al`"
+    ```
+
+
+
+**Output redirection**
+
+In linux we can redirect the output of a given command by using the `>` charecter.
+
+- `>` - overwrite
+- `>>` - append
+
+> Redirecting to `/dev/null` would "get rid" of the output, and not save it.
+
+We can choose wheter to redirect `stdout` or `stderr` by specefing a given number:
+
+- **1** - stdout
+- **2** - stderr
+
+For example:
+```bash
+echo "hello" > /dev/null
+cat doesntexist.txt 2> /dev/null
+```
+
+> You can use `&` to redirect both 1 and 2 (stdout and stderr).
+
+
+
+**Status codes:**
+
+Every program or command in Linux (or in gennral) should return a **status code** when it exists.
+
+We can check the status code of the last command used in Linux by checking the value of `$?`.
+For example:
+```bash
+#!/bin/bash
+
+cat test.txt &> /dev/null
+
+if [ $? -eq 0 ]; then
+    echo "File opened"
+else
+    echo "Error! status code $?"
+fi
+```
+
+---
+
+> **For noam** - Dont forget to include [this article](https://thelazyadmin.blog/bash-arrays).

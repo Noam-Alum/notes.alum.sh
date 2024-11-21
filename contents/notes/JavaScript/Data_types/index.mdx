@@ -1,0 +1,138 @@
+---
+lang: en
+title_en: "Data types in JavaScript"
+description_en: "Explanation on each type of data type in JavaScript."
+meta_image: "https://media.dev.to/cdn-cgi/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fi%2Fzhchycb77n7vz6252uy7.jpg"
+---
+
+# Different Data Types
+
+### String
+
+A string represents a sequence of characters.
+
+```javascript
+let name = "Noam";
+```
+
+### Integer
+
+An integer is a whole number without a decimal point.
+
+```javascript
+let age = 19;
+```
+
+### Array
+
+Arrays are used to store multiple values in a single variable. They are often used as constants.
+
+```javascript
+const cart = ['Keyboard', 'Mouse', 'Monitor'];
+```
+
+You can access elements in the array using an index:
+
+```javascript
+console.log(cart[0]); // Outputs: Keyboard
+```
+
+### Dictionary
+
+Dictionaries, or maps, store data in key-value pairs. They are typically used as constants.
+
+There are two main ways to create a dictionary:
+
+1. Using an object literal:
+
+   ```javascript
+   const languages = {
+     'EN': 'English',
+     'ES': 'Spanish',
+     'TA': 'Tamil'
+   }
+   ```
+
+2. Using the `Map` constructor:
+
+   ```javascript
+   const languages = new Map();
+   languages.set('EN', 'English');
+   languages.set('ES', 'Spanish');
+   languages.set('TA', 'Tamil');
+   ```
+
+Accessing data in a dictionary:
+
+- For an object literal:
+
+  ```javascript
+  console.log(languages['EN']); // Outputs: English
+  ```
+
+- For a `Map`:
+
+  ```javascript
+  console.log(languages.get('EN')); // Outputs: English
+  ```
+
+### Object
+
+Objects are collections of properties, where each property is a key-value pair. Objects are often used as constants.
+
+```javascript
+const scores = {
+    math: 90,
+    science: 85,
+    english: 88
+};
+```
+
+You can access properties of an object using dot notation or bracket notation:
+
+```javascript
+console.log(scores.math); // Outputs: 90
+console.log(scores['science']); // Outputs: 85
+```
+
+You can also nest objects within objects:
+
+```javascript
+const student = {
+  name: 'John',
+  grades: {
+    math: 90,
+    science: 85,
+    english: 88
+  }
+};
+
+console.log(student.grades.math); // Outputs: 90
+```
+
+### Class
+
+Classes are blueprints for creating objects with predefined properties and methods. They are useful for creating multiple instances of similar objects.
+
+Here's a basic example of a class:
+
+```javascript
+class Person {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+
+  greet() {
+    console.log(`Hello, my name is ${this.name} and I am ${this.age} years old.`);
+  }
+}
+
+const person1 = new Person('Alice', 30);
+person1.greet(); // Outputs: Hello, my name is Alice and I am 30 years old.
+```
+
+In this example:
+- The `Person` class has a constructor that initializes the `name` and `age` properties.
+- The `greet` method outputs a greeting message.
+- We create a new instance of the `Person` class with `new Person('Alice', 30)` and call the `greet` method on that instance.

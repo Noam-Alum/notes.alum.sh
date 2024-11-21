@@ -1,0 +1,21 @@
+# Linux Directories Overview
+
+## /sys Directory
+
+The `/sys` directory contains a virtual filesystem that provides an interface to kernel data structures. It is primarily used for exporting information about devices, drivers, and other kernel subsystems, allowing users and applications to interact with and configure kernel settings dynamically.
+
+## /dev Directory
+
+The `/dev` directory contains device nodes that serve as interface points for hardware and peripheral devices. Each file in `/dev` corresponds to a device, with `sda` representing the first SCSI disk, which is typically a hard drive or SSD. This structure allows software to interact with hardware using standard file operations, enabling efficient management and configuration of devices.
+
+### USB Connection
+
+When connecting via USB, you will see the `sdb` file instead of `sda`.
+
+## /proc Directory
+
+The `/proc` directory contains all the processes and how the kernel sees them.
+
+## Inter-process Communication
+
+The bus is responsible for letting two processes communicate with each other.

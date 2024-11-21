@@ -1,0 +1,136 @@
+---
+lang: en
+title_en: "Integrate MongoDB into JetBackup CI/CD"
+description_en: "What and how to inset each step of the way."
+meta_image: "https://user-images.githubusercontent.com/257004/156804366-6c306022-25ef-4ad0-bd48-891e94161ad4.png"
+---
+
+# Integrate MongoDB into JetBackup CI/CD
+
+![Hero](https://user-images.githubusercontent.com/257004/156804366-6c306022-25ef-4ad0-bd48-891e94161ad4.png)
+
+
+## Insert to collection
+
+All items, except for **logLocation**, are *pseudo keys* that should be overwritten if the item needs to be stored again. For example, if a client requests testing for multiple panels, once the workflow for the first panel has completed, the next panel should take the value of this key.
+
+> *root* is the start workflow of the functions tests.
+
+**root:**
+
+Create new object (*runId*) and insert the logLocation:
+
+```json
+db.runs.insertOne(
+{
+    logLocation: ""
+}
+)
+```
+
+This is where **runId** should be stored.
+
+**Panel:**
+In a *panel* workflow (e.g. **cPanel**) the **panel** and the **port** items should be inserted:
+
+```json
+db.runs.updateOne(
+  { _id: ObjectId("{{ .json.runId }}") },
+  {
+    $set: {
+      panel: "",
+      port: 
+    }
+  }
+)
+```
+
+**Distro:**
+In a *distro* workflow (e.g. **AlmaLinux_8**) the **distro** and the current installation JetBackup **root ID** (i.e. **jbRootId**):
+
+```json
+db.runs.updateOne(
+  { _id: ObjectId("{{ .json.runId }}") },
+  {
+    $set: {
+      distro: "",
+      jbRootId: ""
+    }
+  }
+)
+```
+
+**Function parent:**
+
+```json
+db.runs.updateOne(
+  { _id: ObjectId("{{ .json.runId }}") },
+  {
+    $set: {
+      functionParent: ""
+    }
+  }
+)
+```
+
+**Function:**
+
+```json
+db.runs.updateOne(
+  { _id: ObjectId("{{ .json.runId }}") },
+  {
+    $set: {
+      function: ""
+    }
+  }
+)
+```
+
+**message:**
+
+```json
+db.runs.updateOne(
+  { _id: ObjectId("{{ .json.runId }}") },
+  {
+    $set: {
+	message: {
+		value: "",
+		type: "",
+		success: 0/1
+	}
+    }
+  }
+)
+```
+
+---
+
+### All together:
+
+A full run should look something like this:
+
+```json
+{
+  logLocation: "",
+  panel: "",
+  port: "",
+  distro: "",
+  jbRootId: "",
+  functionParent: "",
+  function: ""
+}
+```
+
+---
+
+## Execute commands:
+
+```bash
+mongosh --eval "your_mongo_query_here"
+```
+
+## Return values:
+
+```javascript
+db.runs.find({ _id: ObjectId("{{ .json.runId }}")}, {_id:0, <WANTED_VALUE>:1})
+```

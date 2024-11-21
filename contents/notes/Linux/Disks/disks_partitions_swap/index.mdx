@@ -1,0 +1,84 @@
+# Disks, partitions, and swap
+
+- [LPIC1 - 012 - Module 102.1 - Part 2/2 - Design Disk Layout, Partitions](https://www.youtube.com/watch?v=WHsjpzCYXo8&list=PLFOYXCPEqdNUU55Xvgst8wGTWnz_sd-cj&index=12)
+- [LPIC1 - 013 - 102.1 - Bonus! - Different kinds of swaps: Partition, File & ZRam](https://www.youtube.com/watch?v=Y6aceqC0p0Q&list=PLFOYXCPEqdNUU55Xvgst8wGTWnz_sd-cj&index=13)
+
+## Mounting
+Disks in linux are mounted on a directory.
+The system catalogs them like so: (for solid state drive)
+
+1. sda
+    * sda1
+	* sda2
+	* sda3
+	* sda4
+2. sdb
+3. sdc
+4. sdd
+
+So each ssd has a prefix of sd and then a letter based on the alphabet, each partion on the disk as a preifx of the sd + letter and then a number.
+
+### Usefull commands 1:
+- **mount:** Allows users to mount, i.e., attach additional child file systems to a particular mount point on the currently accessible file system.
+
+## Partitions:
+
+> The first partition should always contain **boot**, this is to make sure the system would always boot even if other partitions got corrupted or to let you encrypt your other partitions while keeping the boot readable for the system.
+
+### BIOS
+
+On a bios system we use the **MBR** partitioning scheme and can host up to 4 partitions, using a method known as an extended partition we can increace this number to 7 using 4 **logical** partitions on the fourth partition, with this arrangement catalogging the partitions would look like this:
+
+- sda1
+- sda2
+- sda3
+- sda5 : The first logical partition
+- sda6 : The second logical partition
+- sda7 : The third logical partition
+- sda8 : The fourth logical partition
+
+### UEFI
+
+On an uefi system we use the **GPT** partitioning scheme and may have about 128 primary partitions and is essential for modern large-capacity drives.
+
+![uefi](https://t4.ftcdn.net/jpg/04/03/42/45/360_F_403424519_DZSxoomEhNl6VjfuK2GW2sXMhlyy0lO3.jpg)
+
+### Usefull commands 2:
+- **fdisk:** Dialog-driven command in Linux used for creating and manipulating disk partition table.
+- **parted:** A powerful tool used to manipulate disk partitions in Linux.
+- **gdisk:** A command-line utility for managing GPT partition tables on Linux and other Unix-like systems.
+
+## LVM
+
+LVM allows you to connect two disks into one 
+
+* Physical volume (**pv**): a whole drive or a partition.
+* Volume Groups (**vg**): this is the collection of one or more **pvs**, OS will se the **vg** as one big disk.
+* Logical Volumes (**lv**): OS will see **lvs** as partitions, you can format an **lv** with your OS and use it.
+
+![LVM](https://miro.medium.com/v2/1*6DH0Da2tYQgBPE6Ckru-kg.jpeg)
+
+### Usefull commands 3:
+- **lv - :** A bunch of commnads meant to handle Logical Volumes.
+- **pv - :** A bunch of commnads meant to handle Physical Volumes.
+
+## Swap
+
+Swap in linux works like an extended memory, kernel will page memory to this partition/file when the data is not needed.
+
+![swap](https://www.atatus.com/blog/content/images/2022/07/swapping--550---350px-.png)
+
+It is enough to format one partition with swap file-system and define it in /etc/fstab.
+
+> Some say **swap size** should be RAM + 2, so if you have 6 GB of ram swap size should be 8 GB.
+
+**Main types of swap:**
+
+* zram: zram is a partition on the **RAM** of the computer which is compressed, the data which is not in use would be stored there and uncompress and write to memmory when needed.
+    ![zram](https://www.guidingtech.com/wp-content/uploads/MemoryTypesAndroidWithBorder.png)
+* partion: A partition that stores swao file-system.
+* file: A file on the file-system that holds the swap data.
+
+### Usefull comands 4:
+- **free:** Shows you the status of your memory (or swap for that metter).
+- **swapon:** Shows you where the swap is.

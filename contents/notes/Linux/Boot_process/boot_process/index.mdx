@@ -1,0 +1,48 @@
+# Linux Boot Process
+
+The boot process is the sequence of events that occurs when a computer is powered on and starts up. This essential process prepares the system for use and loads the operating system into memory. Here's a detailed explanation of the stages involved in the boot process:
+
+1. **Power On and POST (Power-On Self-Test):**
+   - The motherboard firmware does the POST (Power-On Self-Test), which performs hardware checks to ensure the system is functionally correct.
+
+2. **Loading the Bootloader:**
+   - The motherboard loads the BootLoader (e.g., GRUB). The bootloader's job is to load the operating system kernel into memory and transfer control to it.
+
+3. **Kernel Initialization:**
+   - The kernel loads, prepares the system (root filesystem), and runs the init program. The init program is the first process with a PID of 1.
+
+4. **Starting System Services:**
+   - The init program starts all the necessary services and programs.
+
+**UEFI Boot Path:**
+   - The UEFI has a specific disk for the bootloader called EFI/ESP, located at the path `/boot/efi`.
+
+**BIOS bootloader location:**
+
+Bootloaders are generally stored in the **first sector** of a bootable device called **Master Boot Record** (MBR).
+
+**splash screen:**
+-   A splash screen is an introductory screen shown when a computer or device is booting up. It usually displays the logo of the operating system or the manufacturer.
+
+**boot log**
+The boot logs are the system logs that records the events that occur during the system's boot process and yo can find it in the path of `var/log/boot.log`
+
+**init systems**
+- systemd - the binary in the path  `/usr/lib/systemd` and the user's configuration in `/etc/systemd/system`
+- SysVinit - older version in the path  `/sbin/init` 
+
+## commands
+`dmesg` - shows the kernel core logs, it also called the "ring buffer".
+These typically include information about hardware devices and drivers, kernel modules, and system initialization processes.
+
+`journalctl`- shows kernel and boot logs, you can use it also to see logs on differents time zones like for example: 
+`journalctl --since "YYYY-MM-DD HH:MM:SS" --until "YYYY-MM-DD HH:MM:SS"`
+
+`which init` - shows the init system you have.
+
+`readlink -f /path` - shows the link of your init system.
+
+`systemctl` - uses for start, stop, restart, check status, enable/disable, and perform other advanced actions on services.
+## Linux Boot Process Simplified
+
+![boot proccess simplified](https://cdn.hashnode.com/res/hashnode/image/upload/v1656721249571/Him5RiJ40.png)

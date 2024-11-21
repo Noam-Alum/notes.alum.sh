@@ -1,0 +1,185 @@
+# Manage shared libraries
+
+- [LPIC1 - 016 - Module 102.3 - Managing Shared Libraries](https://www.youtube.com/watch?v=1P58gW8xCkk)
+
+A shared library is a segment of code that can be integrated into your own software, for example if I were to create a program (e.g. ELF file) that incorporates an interface I could integrate (_link_) the **libqt** library (i.e. linking).
+
+> **ELF file:** "Executable and Linkable", a common standard file format for executable files.
+
+##### Linking
+
+Linking, like stated earlier, is the act of integratting a segment of code into a program.
+It has two forms:
+
+- **Static:** Static linking is when you include the library/s used into your package, thus the size of the package is bigger.
+
+- **Dynamic:** Dynamic linking is when you state that you need library XYZ and you share it with all other programs. (shared libraries)
+    Linux dynamic libraries have names like `libLIBNAME.so.VERSION` and are located at places like `/lib*/` and `/usr/lib*/`.
+
+> For reference:
+> ![SvsD](https://achindrabhatnagar.wordpress.com/wp-content/uploads/2018/09/static-dynamic.png?w=1200)
+
+## Managing libraries
+
+There are 2 directories for system utilities and 2 directories for when other software needs it:
+
+| **Use case**           | **32 bit**   | **64 bit**    |
+|:----------------------:|:------------:|:-------------:|
+| **System utilities**   | `/lib/`      | `/lib64/`     |
+| **Other software**     | `/usr/lib/`  | `/usr/lib64/` |
+
+###### How the get information on libraries within a package
+
+To gather information on a package libraries we can simply use the `ldd` command which stands for "**L**ist **D**ynamic **D**ependencies", and learn what libraries does a package depend on and if a package libraries are dynamic or static, for example:
+
+- For a dynamically linked program:
+    ```shell-session
+    noam ◈ noam ⊛ Genneral ⊛ ❯❯ ldd /usr/bin/cat
+	    linux-vdso.so.1 (0x00007ffeebab1000)
+	    libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x0000722f88a00000)
+	    /lib64/ld-linux-x86-64.so.2 (0x0000722f88d3a000)
+    ```
+- For a statically linked program:
+    ```shell-session
+    noam ◈ noam ⊛ Genneral ⊛ ❯❯ ldd /usr/bin/ldd
+	    not a dynamic executable
+    ```
+    I noticed that on RHEL based systems I get:
+    ```shell-session
+    [root@server ~]# ldd /usr/sbin/ldconfig 
+	    statically linked
+    ```
+    Same meaning, different output.
+
+## Dynamic libraries config and cache
+
+Like most tools dynamic linking is configurable, we can configure it using the `/etec/ld.so.conf` file, but a common practice is to make changes via the `/etc/ld.so.conf.d/` directory (Which by default all `*.conf` files in it are included within `/etc/ld.so.conf`).
+
+```shell-session
+[root@server ~]# cat /etc/ld.so.conf
+include ld.so.conf.d/*.conf
+[root@server ~]# ls /etc/ld.so.conf.d/
+bind-export-x86_64.conf
+kernel-4.18.0-425.13.1.el8_7.x86_64.conf
+kernel-4.18.0-425.19.2.el8_7.x86_64.conf
+kernel-4.18.0-553.5.1.el8_10.x86_64.conf
+[root@server ~]# cat /etc/ld.so.conf.d/bind-export-x86_64.conf
+/usr/lib64//bind9-export/
+```
+
+For the perpus of this configuration we have a cache file located at `/etc/ld.so.cache` and it is created by the `ldconfig` command:
+```shell-session
+[root@server ~]# ldconfig -p | head
+590 libs found in cache `/etc/ld.so.cache'
+	p11-kit-trust.so (libc6,x86-64) => /lib64/p11-kit-trust.so
+	libzstd.so.1 (libc6,x86-64) => /lib64/libzstd.so.1
+	libzip.so.5 (libc6,x86-64) => /lib64/libzip.so.5
+	libz.so.1 (libc6,x86-64) => /lib64/libz.so.1
+	libz.so (libc6,x86-64) => /lib64/libz.so
+	libyaml-0.so.2 (libc6,x86-64) => /lib64/libyaml-0.so.2
+	libxtables.so.12 (libc6,x86-64) => /lib64/libxtables.so.12
+	libxslt.so.1 (libc6,x86-64) => /lib64/libxslt.so.1
+	libxshmfence.so.1 (libc6,x86-64) => /lib64/libxshmfence.so.1
+```
+
+---
+
+**For the system to know where libraries are located, it uses 4 main strategies:**
+
+1. Checks the `LD_LIBRARY_PATH` environment variable.
+2. Checks the `PATH` environment variable.
+3. Checks `/etc/ld.so.conf` (usually `/etc/ld.so.cache` made by `ldconfig`) for any new locations.
+4. Searches `/lib/`, `/lib64/`, `/usr/lib/` and `/usr/lib64/`.
+
+## Fun usage of `linker`
+
+> `linker` is a program that loads needed libraries of a program (if not in memmory), then execute the program.
+
+To understand `linker` we can check the contents of an **ELF** file, for example `/usr/bin/cat` using the `readelf` command, and in the headers we can see that the interprator is `/lib64/ld-linux-x86-64.so.2` (linker):
+
+```shell-session
+[root@server ~]# readelf -Wl /usr/bin/cat
+
+Elf file type is DYN (Shared object file)
+Entry point 0x2790
+There are 11 program headers, starting at offset 64
+
+Program Headers:
+  Type           Offset   VirtAddr           PhysAddr           FileSiz  MemSiz   Flg Align
+  PHDR           0x000040 0x0000000000000040 0x0000000000000040 0x000268 0x000268 R   0x8
+  INTERP         0x0002a8 0x00000000000002a8 0x00000000000002a8 0x00001c 0x00001c R   0x1
+      [Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]
+  LOAD           0x000000 0x0000000000000000 0x0000000000000000 0x007a48 0x007a48 R E 0x200000
+  LOAD           0x007a50 0x0000000000207a50 0x0000000000207a50 0x000670 0x0007e8 RW  0x200000
+  DYNAMIC        0x007c18 0x0000000000207c18 0x0000000000207c18 0x0001f0 0x0001f0 RW  0x8
+  NOTE           0x0002c8 0x00000000000002c8 0x00000000000002c8 0x000020 0x000020 R   0x8
+  NOTE           0x0002e8 0x00000000000002e8 0x00000000000002e8 0x000044 0x000044 R   0x4
+  GNU_PROPERTY   0x0002c8 0x00000000000002c8 0x00000000000002c8 0x000020 0x000020 R   0x8
+  GNU_EH_FRAME   0x006ad0 0x0000000000006ad0 0x0000000000006ad0 0x0002a4 0x0002a4 R   0x4
+  GNU_STACK      0x000000 0x0000000000000000 0x0000000000000000 0x000000 0x000000 RW  0x10
+  GNU_RELRO      0x007a50 0x0000000000207a50 0x0000000000207a50 0x0005b0 0x0005b0 R   0x1
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     
+   01     .interp 
+   02     .interp .note.gnu.property .note.ABI-tag .note.gnu.build-id .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rela.dyn .rela.plt .init .plt .plt.sec .text .fini .rodata .eh_frame_hdr .eh_frame 
+   03     .init_array .fini_array .data.rel.ro .dynamic .got .data .bss 
+   04     .dynamic 
+   05     .note.gnu.property 
+   06     .note.ABI-tag .note.gnu.build-id 
+   07     .note.gnu.property 
+   08     .eh_frame_hdr 
+   09     
+   10     .init_array .fini_array .data.rel.ro .dynamic .got 
+```
+
+That means that when we run `cat` as an executable it runs using *linker*.
+
+We can take advantage of that when we want to run an **ELF** file with out the *execute bit* turned on, by simply running it trough the *linker*:
+
+```shell-session
+[noam@server root]$ ls -al /usr/bin/wget 
+-rw-r--r-- 1 root root 533920 Apr  4  2023 /usr/bin/wget
+[noam@server root]$ readelf -Wl /usr/bin/wget
+
+Elf file type is DYN (Shared object file)
+Entry point 0xfdc0
+There are 11 program headers, starting at offset 64
+
+Program Headers:
+  Type           Offset   VirtAddr           PhysAddr           FileSiz  MemSiz   Flg Align
+  PHDR           0x000040 0x0000000000000040 0x0000000000000040 0x000268 0x000268 R   0x8
+  INTERP         0x0002a8 0x00000000000002a8 0x00000000000002a8 0x00001c 0x00001c R   0x1
+      [Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]
+  LOAD           0x000000 0x0000000000000000 0x0000000000000000 0x0788b0 0x0788b0 R E 0x200000
+  LOAD           0x0792f0 0x00000000002792f0 0x00000000002792f0 0x0062f4 0x00d438 RW  0x200000
+  DYNAMIC        0x07c508 0x000000000027c508 0x000000000027c508 0x000280 0x000280 RW  0x8
+  NOTE           0x0002c8 0x00000000000002c8 0x00000000000002c8 0x000020 0x000020 R   0x8
+  NOTE           0x0002e8 0x00000000000002e8 0x00000000000002e8 0x000044 0x000044 R   0x4
+  GNU_PROPERTY   0x0002c8 0x00000000000002c8 0x00000000000002c8 0x000020 0x000020 R   0x8
+  GNU_EH_FRAME   0x06ee88 0x000000000006ee88 0x000000000006ee88 0x0015cc 0x0015cc R   0x4
+  GNU_STACK      0x000000 0x0000000000000000 0x0000000000000000 0x000000 0x000000 RW  0x10
+  GNU_RELRO      0x0792f0 0x00000000002792f0 0x00000000002792f0 0x003d10 0x003d10 R   0x1
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     
+   01     .interp 
+   02     .interp .note.gnu.property .note.ABI-tag .note.gnu.build-id .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rela.dyn .rela.plt .init .plt .plt.sec .text .fini .rodata .eh_frame_hdr .eh_frame 
+   03     .init_array .fini_array .data.rel.ro .dynamic .got .data .bss 
+   04     .dynamic 
+   05     .note.gnu.property 
+   06     .note.ABI-tag .note.gnu.build-id 
+   07     .note.gnu.property 
+   08     .eh_frame_hdr 
+   09     
+   10     .init_array .fini_array .data.rel.ro .dynamic .got 
+[noam@server root]$ /lib64/ld-linux-x86-64.so.2 /usr/bin/wget
+wget: missing URL
+Usage: wget [OPTION]... [URL]...
+
+Try `wget --help' for more options.
+```
+
+We can clearly see that there is no execute premission yet I was able to run wget.

@@ -1,0 +1,46 @@
+# Instructions
+
+For each function you want to call use the `-F` option:
+
+```bash
+jetbackup5api -F listBackups
+```
+
+And to pass data use the `-D` option:
+
+```bash
+jetbackup5api -F listBackups -D "type=1&contains=511&limit=10"
+```
+
+Finally to select output type use the `-O` option:
+
+```bash
+jetbackup5api -F listBackups -O plain -D "type=1&contains=511&limit=10"
+```
+
+---
+
+## Functions
+
+### Backup Jobs
+
+> This function allows you to create/modify the Backup Job Object.
+
+**Create backup job**
+
+To create a backup job we'll use `manageBackupJob` function with the following options:
+
+| Option                                                         | Values                                                                                                                                                                                                                                                                                                                                                                    | Format                                                         | Example                                                             |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `action`                                                       | - `create`<br/>- `modify`                                                                                                                                                                                                                                                                                                                                                 | `action=create/modify`                                         | `action=create`                                                     |
+| `type`                                                         | - **Accounts:** 1<br/>- **Directories:** 2<br/>- **Server backup:** 4                                                                                                                                                                                                                                                                                                     | `type=1/2/3/4`                                                 | `type=1`                                                            |
+| `name`                                                         | Any                                                                                                                                                                                                                                                                                                                                                                       | `name="Any name"`                                              | `name="Daily Backup"`                                               |
+| `destination`                                                  | - **INDEX**<br/>- **Destination ID**                                                                                                                                                                                                                                                                                                                                      | `destination[INDEX]=Destination ID`                            | `destination[0]=5fcedb7e4caee42621624bc2`                           |
+| `contains`                                                     | - **Account Config:**    1<br/>- **Account Homedir:**    2<br/>- **Account Databases:**    4<br/>- **Server Backup:**    7<br/>- **Account Emails:**    8<br/>- **Account Cron Jobs:**    16<br/>- **Account Domains:**    32<br/>- **Account Certificates:**    64<br/>- **Account Database Users:**    128<br/>- **Account FTP:**    256<br/>- **Full Account:**    511 | `contains=NUMBER`                                              | `contains=511`                                                      |
+| `options`                                                      | - **Incude Databases:**	0<br/>- **Exclude Emails Contents:**	1<br/>- **Include Emails Contents:**	2<br/>- **Exclude Databases and Email Junk:**	4<br/>- **Include Junk:**	6                                                                                                                                                                                               | `options=NUMBER`                                               | `options=4`                                                         |
+| `structure`                                                    | - **Incremental:**	1<br/>- **Archived:**	2<br/>- **Compressed:**	4                                                                                                                                                                                                                                                                                                        | `structure=NUMBER`                                             | `structure=1`                                                       |
+| `retry_failed`                                                 | 0 or 1                                                                                                                                                                                                                                                                                                                                                                    | `retry_failed=NUMBER`                                          | `retry_failed=1`                                                    |
+| `schedules[INDEX][_id]=ScheduleObjectID[INDEX][retain]=NUMBER` | `[_id]=ScheduleObjectID[INDEX`<br/>`[retain]=NUMBER`                                                                                                                                                                                                                                                                                                                      | `schedules[INDEX][_id]=ScheduleObjectID[INDEX][retain]=NUMBER` | `schedules[0][_id]=613f60409129f94ae3631d22&schedules[0][retain]=0` |
+| `time`                                                         | Value in the [24 hour format](https://en.wikipedia.org/wiki/24-hour_clock)                                                                                                                                                                                                                                                                                                | `time=NUMBER`                                                  | `time=0350`                                                         |
+| `monitor[Option]`                                              | **ranfor:** Integer<br/>**notran:** Integer                                                                                                                                                                                                                                                                                                                               | `monitor[OPTION]=NUMBER`                                       | `monitor[ranfor]=1`                                                 |
+| `owner`                                                        | Owner ID                                                                                                                                                                                                                                                                                                                                                                  | `owner=OWNER_ID`                                               | `owner=630e811f4ad52176890b3026`                                    |

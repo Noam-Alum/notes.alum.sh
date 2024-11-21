@@ -1,0 +1,331 @@
+# JetServer - duplicate cPanel server TEMP
+
+This guide is for when we duplicate a server temporarily.
+
+# Before transfer
+
+## WHMCS - jetclients.co.il/mgmt/
+
+Go to *Addons* - *Product Management* and copy the TEMPLATE for the given "New Server", for example **TEMPLATE - Cpanel VPS from Template**.
+
+> Click on the most right button to start copping.
+
+Search the newly created copy and press on the pencil icon (✎) next to the generated name (.e.g "TEMPLATE - Cpanel VPS from Template (clone_1720337233)")
+
+- **Title::** You can choose the name (for example: "New Israel 16").
+- **Assigned To:** Probably yourself.
+- **Status:** In Progress.
+
+**Since we are clonning a server we can set the following tasks as completed:**
+- *DNS - > create/update A & SPF & NS records for the server*
+- *WHMCS -> add / update server hostname on WHMCS server (/etc/hosts)*
+- *WHMCS > Add server to monitoring script in WHMCS (see notes)*
+- *CENTOS -> Make sure monitor script works - /root/monitor_http (see notes)* - (Check `crontab -l` for `/root/monitor_http`)
+- *WHMCS -> Setup, product services, servers - set ips, access hash, NS (see notes)*
+- *WHMCS -> Set server in client's account (choose server in dropdown)  If server is reused remove it from previous client in product info.*
+- *WHMCS -> Add server to email parser rules (see notes), make sure it works* 
+- *JetBackup 5 - Add encryption key to teampass (there is a special folder for keys)*
+- *Jetbackup 5 > Set remote destination, create backup jobs and settings (see notes)*
+- *Jetbackup 5 -> Set ticket task +3 days to verify backups*
+- *Make sure client is able to manage firewall controls from client area*
+- *WHM > Show/Edit Reserved IPs > Reserve server LAN IP (192.168.130.xxx)* (That is if LAN addersses are not needed)
+
+---
+
+## JetServer Cloud - cloud.jetserver.net
+
+Search for the TEMPLATE you want for example: `almalinux-template.jetserver.net` then press on *Actions* - *Clone Server*.
+
+> **Project Management:**
+    - *OMC CLOUD -> clone server from cpanel-template.jetserver.net disk image* completed.
+
+#### Choose Server Specs
+
+- **TYPE:** B
+- **CPU:** Check product.
+- **RAM:** Check product.
+- **SSD:** Check product.
+
+
+#### Choose Networking
+
+> IP addresses are choosen automatically, just add the number of addresses needed.
+
+**WAN:**
+- **NIC #[NUM]:** `LAN | wan-jet | auto`
+
+**LAN:**
+- **NIC #[NUM]:** `LAN | backup-jet | auto`
+
+
+#### Finalize Settings
+
+- **Password:** Password would get overwritten, just select any password.
+- **Name #[NUM]:** The new hostname.
+
+#### Add whmcsapi@jetserver.org 
+
+- Search the newly created server, click on **Actions** and under **Administrative** click on **Permmisions**.
+- In the **User/Group** text box enter "whmcsapi@jetserver.org" and click on **Assign User/Group**
+
+> **Project Management:**
+    - *Add the API MAIL "whmcsapi@jetserver.org" To Server's Permmision in cloud* completed.
+
+---
+
+## Add licenses to new server
+
+Make sure to add **all needed licenses** based on the orginal product, the steps given below are in general please follow them with caution:
+
+#### cPanel section
+
+In TeamPass search for *cPanel Manage2 Console* for the user and password.
+
+1. Go to `https://manage2.cpanel.net`
+2. CLick on **Add License** in the **Licenses** section.
+3. Set the following settigns:
+    - **Group:** `Jetserver Web Services Licenses`
+    - **Package:** Based on product. (For example: *cPanel Pro Cloud 30* is *cPanel Pro Cloud* with **Max Users** of 30.)
+    - **IP Addresses:** The servers external IP address. (You can use `curl ifconfig.me`)
+    - **External Note:** Whatever you want.
+4. Click on **Add license**
+5. In the servers command line, run `/usr/local/cpanel/cpkeyclt`.
+
+
+#### LiteSpeed section
+
+In TeamPass search for *LiteSpeed* for the user and password.
+
+1. Go to `https://store.litespeedtech.com/store/clientarea.php`
+2. Select *JetServer Cloud (Daniel Alum)*
+3. Go to *Services* - *Order New Services*
+4. Choose the license you want for example *Web Host Essential License*, click on *Order Now*.
+5. Verify that **Caching** is **ls cache standard**.
+6. Go to *Services - My Services*
+7. In the product we bought take the **Serial No.** and in the server replace the contents of /usr/local/lsws/conf/serial.no with it.
+8. Remove /usr/local/lsws/conf/license.key
+9. Run `/usr/local/lsws/bin/lshttpd -ra`
+10. Run `/scripts/restartsrv_httpd`
+11. Verify that in LiteSpeeds website the license updated the ip address.
+    
+> **Project Management:**
+    - *LITESPEED -> update litespeed serial key* completed.
+
+---
+
+## Fix WHM
+
+#### Login to WHM
+1. Run:
+    ```bash
+    echo "https://`curl -s ifconfig.me`:2087`whmlogin | awk -F '2087' '{print $2}'`"
+    ```
+    and enter the link.
+2. Check the *I have read and agree to all the legal documents listed above.* box and **Continue**.
+
+
+#### Change Settings
+
+**Default IP && Name Servers:**
+
+1. Go to **Server Configuration** -> **Basic WebHost Manager® Setup** scroll down to **Basic Config** and change The IPv4 address. (You can use `curl ifconfig.me` to get the new IP address)
+2. Check the *old Server* for the **Name Servers** and change them respectfully in the **Nameservers** section.
+3. Scroll to the bottom of the page and click on **Save Changes**
+
+> **Project Management:**
+    - *WHM -> Basic Settings -> change default ip, set nameservers and assign IP addresses to them* completed.
+
+**Hostname:**
+
+In the main WHM page, click on **Networking Setup** and choose **Change Hostname**, change **New Hostname** to the new hostname and click on **Change**.
+
+> **Project Management:**
+    - *WHM > Home > Networking Setup > Change Hostname - give the new hostname* completed.
+
+**Set UPCP (Update cPanel) time**
+
+1. Go to *Server Configuration* -> *Configure cPanel Cron Jobs*
+2. Set **Command upcp** time to:
+
+    |Minute|Hour|Day|Month|Weekday|
+    |------|----|---|-----|-------|
+    |46    |5   |*  |*    |5      |
+3. In the command line, run `/scripts/upcp`.
+
+> **Project Management:**
+    - *WHM -> Change upcp time to random once a week time (under CRON Settings)* completed.
+    - *WHM -> run upcp to update software to latest version.* completed.
+
+**Switch to LiteSpeed:**
+
+Verify that litespeed runs, if so go to *Plugins -> LiteSpeed Web Server -> Switch to LiteSpeed* and click on **Switch To LiteSpeed**.
+
+---
+
+## CSF
+
+- Check the *old product* for the **TCP_IN** and **CC_ALLOW_TCP** values and set them in the duplicate server.
+- Take the addresses in `/etc/csf/csf.allow`, `/etc/csf/csf.deny` and `/etc/csf/csf.dyndns` && paste them respectfully in the duplicate server.
+
+
+> If server is high powered, in the `/etc/csf/csf.conf` file change **PT_LOAD_LEVEL** to a higher number.
+> > **Project Management:**
+    - *CSF -> if server is high powered - Increase PT_LOAD_LEVEL to a higher number* completed.
+
+---
+
+## CronJobs
+
+Copy all users cron jobs (Check `/var/spool/cron/`).
+
+> **Noams tip:**
+> Use:
+> ```bash
+> ssh -p2223 root@[Remote Address] 'for Cuser in $(ls /var/spool/cron/); do echo -e "$Cuser:\n-----\n$(crontab -u $Cuser -l)\n";done'
+> ```
+> To scan the cronjobs of the old server via the duplicate server, make sure to replace `[Remote Address]` with the old servers IP address and prepare the **root** password.
+
+**If found any special directories or files not in the duplicate server make sure to create/copy from old server.**
+
+---
+
+## Transfer accounts
+
+In the new server:
+
+1. Navigate to *Transfer -> Transfer Tool*.
+    - **Remote Server Address:** OLD IP address (Old server)
+    - **Remote SSH Port:** 2223
+    - **Login:** root
+    - **Authentication Method:** Password
+    - **Root Password:** Roots password (Check TeamPass)
+2. Press on **Scan Remote Server**
+3. Select **ALL** accounts.
+    > - Verify that **Live transfer** is turned off.
+    > - Add the **Reseller** privileg to the **Resller user** in the old server.
+4. Check transfered websites using hosts file.
+
+---
+
+# After transfer
+
+## Swap IP addresses
+
+1. Change the value of `IPADDR` to the old servers IP address in `/etc/sysconfig/network-scripts/ifcfg-eth0`.
+2. In cloud.jetserver.net, remove the IP address from the old server:
+    - *[Old Server Name] -> NETWORKS -> Actions -> Remove IP: 1.2.3.4*
+    - *[New Server Name] -> NETWORKS -> Actions -> Add IP Address -> Add Manually* and add the old servers IP address
+    - *[New Server Name] -> NETWORKS -> Actions -> Remove IP: [Temp servers IP]*
+3. In **WHM** (`whmlogin` in the command line) go to *Server Configuration -> Basic WebHost Manager® Setup*, under *Basic Config* change the IPv4 address to the old servers ip.
+4. Go to *IP Functions -> IP Migration Wizard* and add the old ip address in the text box, then press **Continue**, (Fill the next form the same) continue with the Wizard.
+
+---
+
+## Change OMC UUID
+
+1. In cloud.jetserver.net, go to *[New Server Name] -> OVERVIEW* then copy the **Server ID** (For example: 554db793-a9fe-5028-6ce6-6a076a1easds)
+2. In jetclients.co.il/mgmt/ go to the clients product and scroll down to **OMC UUID** then overwrite it with the newly found **Server ID**.
+
+---
+
+## Revert to old litespeed license
+
+1. Go to the product page, scroll down to **Addons** and edit the **LiteSpeed** License, then copy the **Serial Number**.
+2. In the new servers command line, overwrite the `/usr/local/lsws/conf/serial.no` file.
+3. Remove the `/usr/local/lsws/conf/license.key` file.
+4. Run `/usr/local/lsws/bin/lshttpd -ra`.
+5. In WHM, Go to *Plugins -> ListSpeed Web Server* verify that everything is allright and cPanel is using LiteSpeed (Use Switch To LiteSpeed)
+
+---
+
+## Replace old *.jetserver.net wildcard SSL certificate with cpanel AutoSSL certificate
+
+Run:
+```bash
+whmapi1 reset_service_ssl_certificate service=cpanel
+whmapi1 reset_service_ssl_certificate service=ftp
+whmapi1 reset_service_ssl_certificate service=dovecot
+whmapi1 reset_service_ssl_certificate service=exim
+/scripts/restartsrv_cpsrvd
+/usr/local/cpanel/bin/checkallsslcerts --allow-retry --verbose
+/usr/local/cpanel/cpkeyclt
+/scripts/restartsrv_cpsrvd
+```
+
+If this works, run:
+```bash
+/scripts/autorepair purge_hostname_cert_csrs
+```
+
+If this does not work as well use workaround:
+
+1. Move hostname_history.json out of the way.
+```bash
+mv /var/cpanel/hostname_history.json{,.$( date +%Y%m%d )}
+```
+2. Move hostname_cert_csrs out of the way.
+```bash
+mv /var/cpanel/hostname_cert_csrs{,.$( date +%Y%m%d )}
+```
+3. Run the checkallsslcerts script to order a new certificate.
+```bash
+/usr/local/cpanel/bin/checkallsslcerts
+```
+
+Another solution if you got errors like:
+
+> The system failed to validate domain control for the domain “autodiscover.israel140.jetserver.net” using the “DNS” DCV method: 400 urn:ietf:params:acme:erro
+r:dns (There was a problem with a DNS query) (DNS problem: NXDOMAIN looking up TXT for _acme-challenge.autodiscover.israel140.jetserver.net - check that a D
+NS record exists for this domain)
+
+Run:
+```bash
+whmapi1 adddns domain=your.server's.hostname ip=IP
+```
+
+And then:
+```bash
+/usr/local/cpanel/bin/checkallsslcerts
+```
+---
+
+## Delete old licenses
+
+#### LiteSpeed
+
+1. Go to `https://store.litespeedtech.com/store/clientarea.php`
+2. Select *JetServer Cloud (Daniel Alum)*
+3. Go to *Services* and search for the new license then press on **Request Cancellation**.
+4. Write "Cancelled", and press on **Request Cancellation**.
+
+#### cPanel
+
+1. Go to `https://manage2.cpanel.net`
+2. CLick on **List Licenses** in the **Licenses** section.
+3. Search for the new license and press on **expire**.
+4. Write "Cancelled", and press on **Expire License**.
+
+---
+
+## CXS
+
+In the command line, run `cxs -U`.
+
+> **Project Management:**
+    - *CXS - Make sure CXS is activated with a license (try to scan something)* completed.
+
+---
+
+## Run mysql tuner
+
+1. Run `/eli_install/mysqltuner.pl`.
+2. Make the changes based on the recommendations it gives.
+3. Add a ticket in 3 mounts to tune again.
+
+> **Project Management:**
+    - *MYSQL -> MAKE MYSQL TUNING ON /etc/my.cnf* completed.
+    - *MYSQL -> create ticket in 3 mounts to do TUNING AGAIN !!* completed.
+
+---
+
+## JetBackup5

@@ -1,0 +1,149 @@
+# Mail Administration in WHM
+
+## Dovecot
+
+> **Dovecot:** Dovecot is an open source IMAP and POP3 email server for Linux/UNIX-like systems, written with security primarily in mind. Dovecot is an excellent choice for both small and large installations. It’s fast, simple to set up, requires no special administration and it uses very little memory.
+
+|                       |                                             IMAP                                            |                                                              POP3                                                             |
+|-----------------------|:-------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------:|
+| Not secured port      | 143                                                                                         | 110                                                                                                                           |
+| Secured incoming port | 993                                                                                         | 995                                                                                                                           |
+| Secured outgoing port | 465                                                                                         | 465                                                                                                                           |
+| How it works          | When using the IMAP protocol, clients request emails without deleting them from the server. | When using the POP3 protocol, a client downloads emails from the server and typically deletes them from the server afterward. |
+
+> - **MUAs:** Mail User-agents.
+> - **LDA:** Local delivery agent, takes mail from an MTA and delivers it to a user's mailbox, while keeping Dovecot index files up to date.
+> - **MTA:** Mail Transfer-agent, the software that works behind the scenes to transport E-Mail messages from one computer to another.
+
+In most UNIX operating systems we have two storage options:
+- **mdbox:** stores multiple messages - sometimes hundreds or thousands of messages - in a single file.
+- **Maildir:** stores each message a separate file.
+> You can switch between the two available formats using the wizard in **WHM » Email » Mailbox Conversion**.
+    ![cp4](https://exams.cpanel.net/getfile/TK_m4v8OOSObjA9bDqKygv4Qg.UXJtWmxjTS9zRU40NXJMUDJwL3pFUE4wdGJyQXlkRlRvbm1NRk1rSGkrNjFaT0dyZUZKNmVOSE9hL0U1NGlhKw/cpanel/1659013637_understanding-your-mail-server-cmi5-L6Sd1G8E/scormcontent/assets/PhqMF9whhD0PvP4h_O2ioQ4nHhbllPKDM.jpg)
+
+### Authentication daemons
+
+Simply put, these are programs that log the user in and perform the work to ensure that the correct password is being used. No riddles involved.
+
+> **Deamon:** A background process that operates autonomously, performing tasks without user intervention.
+
+Dovecot provides authentication services for email on a cPanel server, it's a good thing to remember that a user cannot receive mail until after Dovecot’s authentication daemon has completed verification of the password.
+
+> Unless POP-before-SMTP services are turned on in Tweak Settings, users also cannot send mail off of the server until after their password has been checked.
+
+On your cPanel server, this is controlled in the **WHM » Service Configuration » Mailserver Configuration** interface.
+Below you can see two of the key configuration options that can be adjusted in this interface:
+
+![cp1](https://exams.cpanel.net/getfile/TK_m4v8OOSObjA9bDqKygv4Qg.UXJtWmxjTS9zRU40NXJMUDJwL3pFUE4wdGJyQXlkRlRvbm1NRk1rSGkrNjFaT0dyZUZKNmVOSE9hL0U1NGlhKw/cpanel/1659013637_understanding-your-mail-server-cmi5-L6Sd1G8E/scormcontent/assets/z1Glu400zCJ1Xxv__BLlUzAg-eqgHkGLs.png)
+![cp2](https://exams.cpanel.net/getfile/TK_m4v8OOSObjA9bDqKygv4Qg.UXJtWmxjTS9zRU40NXJMUDJwL3pFUE4wdGJyQXlkRlRvbm1NRk1rSGkrNjFaT0dyZUZKNmVOSE9hL0U1NGlhKw/cpanel/1659013637_understanding-your-mail-server-cmi5-L6Sd1G8E/scormcontent/assets/zqiwpuqpIYsqSaA7_nHBD8x-PjUC1c60y.png)
+
+
+### Dovecot tips:
+
+**Dovecot does not empty its trash by default.**
+
+In order to enable automatic trash disposal, you'll need to select the Auto-Expunge Trash option in the **WHM » Service Configuration » Mailserver Configuration** interface, as shown below.
+
+![cp3](https://exams.cpanel.net/getfile/TK_m4v8OOSObjA9bDqKygv4Qg.UXJtWmxjTS9zRU40NXJMUDJwL3pFUE4wdGJyQXlkRlRvbm1NRk1rSGkrNjFaT0dyZUZKNmVOSE9hL0U1NGlhKw/cpanel/1659013637_understanding-your-mail-server-cmi5-L6Sd1G8E/scormcontent/assets/MhINVuPN0Ck8nVm1_TM97ouDKHIe47_0a.png)
+
+#### Editing your System Mail Preferences
+
+There are three system accounts that do not receive mail, but may be used for system notifications and alerts:
+
+1. root
+2. cpanel
+3. nobody
+
+These accounts need to have forwarders set up for them in the **Home » Server Contacts » Edit System Mail Preferences** interface.
+If the mail is not forwarded, then the mail will freeze in the queue, which can build up over time if not maintained.
+
+![cp5](https://exams.cpanel.net/getfile/TK_m4v8OOSObjA9bDqKygv4Qg.UXJtWmxjTS9zRU40NXJMUDJwL3pFUE4wdGJyQXlkRlRvbm1NRk1rSGkrNjFaT0dyZUZKNmVOSE9hL0U1NGlhKw/cpanel/1659013637_understanding-your-mail-server-cmi5-L6Sd1G8E/scormcontent/assets/oWt8OBFOP7UTlUzj_euRkrfMinLONqoAN.png)
+
+## Exim
+
+Exim is designed to work efficiently on systems that are permanently connected to the Internet and are handling a general mix of mail. In such circumstances, most messages can be delivered immediately. Consequently, Exim does not maintain independent queues of messages for specific domains or hosts, though it does try to send several messages in a single SMTP connection after a host has been down, and it also maintains per-host retry information.
+
+> **Exim:** Exim is a mail transfer agent (MTA) that cPanel & WHM includes. Mail transfer agents send and receive email messages for your server.
+
+#### Message Identification in Exim
+
+Every message handled by Exim is given a message id that is sixteen characters long.
+It is divided into three parts, separated by hyphens. An example of this might be: **16VDhn-0001bo-D3**
+
+
+### Configuration in Exim
+
+Exim is highly configurable and therefore has features that are lacking in other MTAs.
+
+The configuration is done through a single configuration file, which must include the main section with generic settings and variables. The file is stored at **/etc/exim.conf**, and the contents of this file are automatically managed and populated within cPanel & WHM environments, but adjustable via WHM's [Exim Configuration Manager interface](https://docs.cpanel.net/whm/service-configuration/exim-configuration-manager/).
+
+### Backing up your Exim Configuration
+
+Click the Backup tab to create a backup of your Exim configuration, which you can either download to your computer or save on the server.
+
+To create a backup, perform the following steps:
+
+1. Select one of the following options:
+    - Download — Save the backup to a local drive on your computer.
+    - Save on Server — Save the backup to the server.
+2. Click Run Backup.
+
+### Restoring an Exim Configuration
+
+Click the Restore tab to restore an existing backup of an Exim configuration.
+
+![cp99](https://exams.cpanel.net/getfile/TK_vMVnFOgSwAItmFkJgnZ6jA.cko3bmhkZHRnVGo3OFdrMGRhY3h2OWh5Mzhkb3VFd1BTaHd6cGdXT2ZHaGNMU3NjaVJ2UlA4SFByWGRWV21IZg/cpanel/1659013637_understanding-your-mail-server-cmi5-L6Sd1G8E/scormcontent/assets/1Ns_8TDVCo6nw2cg_iksT0xWN3vo3feJ0.png)
+
+To restore an Exim configuration backup that you saved to a local drive, perform the following steps:
+
+1. Click Choose File to select the backup file. Backup files use the .tar.gz file format by default.
+2. Click Upload to upload and restore the selected backup file.
+
+To restore an Exim configuration backup that you saved to the server, click Restore for the file name of the backup that you wish to restore.
+
+## Introduction to Spam
+
+Spamming is the use of messaging systems to send multiple unsolicited (has been given without being asked for) messages.
+
+
+> **Apache SpamAssassin:** A spam filter utility that examines incoming emails and tests for spam characteristics.
+
+If you enable Apache SpamAssassin on your server, the Apache SpamAssassin daemon (**spamd**) provides the Apache SpamAssassin service to your mail server.
+The most common configuration change is to increase the number of **children** spamd is permitted to have.
+This is effectively the same as the  **number of messages that can be scanned concurrently**.
+
+To enable or disable [**dormant mode**](https://blog.cpanel.com/shh-this-service-is-sleeping-dormant-mode-in-cpanel-whm-version-56/) for the spamd daemon, use the _Dormant services_ setting in WHM's [**Tweak Settings**](https://docs.cpanel.net/whm/server-configuration/tweak-settings/) interface.
+
+Sometimes spam is spread using what’s called an **open relay**.
+
+> An open relay is a mail server that will relay mail from _anyone_.
+
+cPanel servers are **not** open relays out-of-the-box, although they _do_ relay mail.
+
+There are **three reports pages**  in WHM to help you examine your server’s mail patterns:
+
+- 1)
+    **View Relayers**
+    It shows **all messages that have left the server**.
+- 2)
+    **View Mail Statistics Summary**
+    Displays statistics about the mail that your server sends and receives over a period of time.
+- 3)
+    **View Sent Summary**
+    This page can help you find spammers, you can use this report to view both the total number of **successful** messages and the total **failed** + **deferred** messages.
+
+cPanel & WHM will send you a notification if any specific mail user sends _more_ than **500 unique messages**  **in an hour**.
+Every 15 minutes, a cron task is run to count **sent**  **messages**, then send the report if required. The exact _type_ of notification is configurable in the **Contact Manager**, but by default, it will send an email to the systems administrator.
+
+#### Questions & Answers
+
+Here is the provided text formatted into a Markdown table:
+
+| **Question**                                                                                      | **Answer**                                                                                     |
+|---------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
+| If there is a long delay indicated when an email is being sent, the Mailer Daemon will send a warning message to which of the following destinations? | The email's sender.                                                                            |
+| Which of the following options accurately describes the behavior of an open relay server?         | An open relay server does not require you to authenticate.                                      |
+| In which WHM interface can you configure the forwarders for the root, cPanel, and nobody mail accounts? | WHM Home » Server Contacts » Edit System Mail Preferences                                      |
+| What actions can you perform in the WHM Home » Email » Mail Queue Manager interface?               | Delete a particular message permanently so that is not delivered.                               |
+| Given the following, which best describes an actual reason that the system may place a message into the Exim queue? | The load average on the server is above the delivery threshold.                                |
+| Which of the following options describe an actual value that can be adjusted within the WHM Home » Service Configuration » Mailserver Configuration interface? | Controlling the maximum and spare quantities of authentication daemon processes.

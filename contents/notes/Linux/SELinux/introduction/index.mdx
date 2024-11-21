@@ -1,0 +1,45 @@
+# SELinux
+
+Security-Enhanced Linux (SELinux) is a security architecture for Linux® systems that allows administrators to have more control over who can access the system.
+
+> SELinux was originally a development project from the National Security Agency (NSA) and originally implemented as a loadable kernel module for Linux kernel v2.4.
+
+SELinux provides more control to a system administrator over the default DAC aproach (Discretionary Access Control), when an application or process, known as a subject, makes a request to access an object, like a file, SELinux checks with an access vector cache (AVC), where permissions are cached for subjects and objects. 
+
+![Example_use](https://access.redhat.com/webassets/avalon/d/Red_Hat_Enterprise_Linux-8-Using_SELinux-en-US/images/f7b4d4a7ee54ec0153a3422060470895/selinux-intro-apache-mariadb.png)
+
+| Description                    | Name     | Can be             |
+|--------------------------------|----------|--------------------|
+| processes                      | subjects | Trusted, Untrusted |
+| system resources such as files | objects  | Trusted, Untrusted |
+
+## Policy
+
+The SELinux policy uses these contexts in a series of rules which define how processes can interact with each other and the various system resources. By default, the policy does not allow any interaction unless a rule explicitly grants access.
+
+>  SELinux policy rules are checked after DAC rules.
+
+Configuration file structure:
+
+| #              | Syntax                                  | Example  |
+|----------------|-----------------------------------------|----------|
+| User           | &lt;username&gt;\_u                     | system_u |
+| Role           | &lt;name&gt;\_r                         | object_r |
+| Type           | &lt;name&gt;\_t                         | httpd_t  |
+| Range          | s&lt;N&gt; or s&lt;sN&gt; - s&lt;eN&gt; | s0 - s15 |
+
+```text
+user_u:role_r:type_t:level
+```
+
+**For example:**
+```text
+unconfined_u:object_r:user_home_t:s0
+```
+
+> *NIX may **NEVER** be user_u with the system_u user in SELinux.
+
+### Usefull commands:
+
+- `ls -laZ`
+- `ps -Z`

@@ -1,0 +1,67 @@
+---
+title: "BGP - Border Gateway Protocol"
+description: "BGP is very different from IGP protocols. We can compare BGP AS numbers to the domain system in the hosting industry."
+---
+
+# BGP - Border Gateway Protocol
+
+**BGP** is very different from **IGP** protocols, we can compare **BGP AS numbers** to the domain system in the hosting industry.
+When an *ISP* wants to become an AS it needs to follow a few steps:
+
+1. **Request an AS Number and IP Addresses:**
+	The ISP needs to ask its relevant IP distributor (e.g., RIPE) for an IP address and an AS number.
+2. **Prerequisites:**
+	The ISP must have at least **two BGP peers (neighbors)** and around **$2,000** to cover the cost of registration and infrastructure setup.
+
+After an AS number is assigned, *RIPE* (or other RIRs like *ARIN*, *APNIC*, etc.) maintains a registry that maps IP addresses to AS numbers, this ensures that **BGP** can route traffic to the correct **AS**.
+
+
+
+![Hero](/Hoshen/routing/bgp/bgp.png)
+
+
+### BGP Table and Path Exchange
+
+Each **ISP** maintains its own **BGP routing table**, which contains paths to other **Autonomous Systems (ASes)**, if an **ISP** does not know the path to a **destination AS**, it will perform the following steps:
+
+1. **Query the Relevant IP Distributor:**
+The ISP will contact its RIR or a neighboring **ISP** to request routing information for the **destination AS**.
+   
+2. **Dynamic Path Exchange via BGP:**
+**BGP** allows **ISPs** to exchange routing information dynamically, if there’s no direct path to the destination the ISP will learn alternative routes by querying its neighbors. This helps *expand the AS’s reach* and ensure that traffic can find its way across multiple ASes, eventually reaching the destination.
+
+> **Note:** If no route exists to the destination AS, **packet loss** will occur.
+
+
+
+### BGP Metric and Path Selection
+
+When there are multiple paths to reach another **AS**, **BGP** uses various metrics to determine the *"best"* path.
+The metrics and factors that influence path selection include:
+
+| **Metric**             | **Description**                                                                 |
+|------------------------|---------------------------------------------------------------------------------|
+| **AS Path Length**      | Shorter AS paths are generally preferred, as they represent fewer hops.         |
+| **Local Preference**    | Paths with higher local preference are preferred, reflecting internal policy.   |
+| **Multi-Exit Discriminator (MED)** | Determines the best exit point when multiple exit points exist.               |
+| **Next Hop Reachability** | The path with the closest and most reliable next hop is preferred.               |
+| **Weight**              | A Cisco-specific attribute that gives preference to certain routes within an AS. |
+| **Origin Type**         | The origin of the route (IGP vs EGP) can affect path selection.                 |
+
+> **Note:** The term **"shortest path"** in **BGP** doesn't always mean the smallest number of hops; rather, it refers to the combination of these metrics to choose the best route based on the network's configuration. (or via priority)
+
+
+
+### BGP Peer Relationships
+
+> A **peer** is another **AS** that is **directly connected**. (physically or via a tunnel)
+
+**BGP** relies on **peer relationships** between **ISPs** to exchange routing information, there are two types of **BGP peers**:
+
+1. **Internal BGP (IBGP):**
+Used within an **AS**, **BGP** routers in the same **AS** share routing information to ensure consistency and reachability to external networks.
+   
+2. **External BGP (EBGP):**
+Used between different **ASes**, **EBGP** (**E**xternal BGP) allows **BGP** routers in different **ASes** to share routing information and establish connectivity across the internet.
+
+**BGP** is a powerful protocol for managing routing between **ASes** on the internet, by leveraging a combination of **metrics**, **peer relationships**, and **dynamic routing**, it ensures that **ISPs** (or organizations) can efficiently and reliably deliver traffic across the global internet. 

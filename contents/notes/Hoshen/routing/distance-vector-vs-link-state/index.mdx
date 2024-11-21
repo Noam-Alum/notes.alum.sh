@@ -1,0 +1,40 @@
+---
+title: "Distance vector VS Link state"
+description: "Routing is the proccess of one transmiting data from one node to another."
+---
+
+# Distance vector VS Link state
+
+> Routing is the proccess of one transmiting data from one node to another.
+
+## Distance vector
+
+Distance vector is an algorithm that changes based on its neigbors, a given router routing table is shared to other routers that are **directly connected** and they update their local table periodically.
+
+## Link state
+
+Link state is a **dynamic** routing algorithm where every router keeps information on the whole network, routers flood the entier network with their link-state information across the entier network, making sure that all routers have an updated view on the network.
+
+## Difference
+
+| **Distance Vector Routing**                                                            | **Link State Routing**                                                              |
+|----------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| Bandwidth required is less due to local sharing, small packets and no flooding.        | Bandwidth required is more due to flooding and sending of large link state packets. |
+| Based on local knowledge, since it updates table based on information from neighbours. | Based on global knowledge, it have knowledge about entire network.                  |
+| Make use of Bellman Ford Algorithm.                                                    | Make use of Dijakstra’s algorithm.                                                  |
+| Traffic is less.                                                                       | Traffic is more.                                                                    |
+| Converges slowly i.e, good news spread fast and bad news spread slowly.                | Converges faster.                                                                   |
+| Count of infinity problem.                                                             | No count of infinity problem.                                                       |
+| Persistent looping problem i.e, loop will be there forever.                            | No persistent loops, only transient loops.                                          |
+| Practical implementation is RIP and IGRP.                                              | Practical implementation is OSPF and ISIS.                                          |
+
+
+## Routing protocols
+
+| Link-State Protocols | Distance Vector Protocols |
+|----------------------|--------------------------|
+| OSPF                 | RIP                      |
+| IS-IS                | IGRP                     |
+| RIPv2                | EIGRP                    |
+| OSPFv3               | BGP                      |
+| RTE (Routing Table Exchange) | DVMRP            |

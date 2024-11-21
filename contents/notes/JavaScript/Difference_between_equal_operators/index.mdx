@@ -1,0 +1,68 @@
+---
+lang: en
+
+title_en: "Difference Between == & === in JavaScript"
+
+description_en: "Explanation on the difference Between == & === in JavaScript."
+
+meta_image: "https://cdn.hashnode.com/res/hashnode/image/upload/v1676418954529/5a8937f6-f309-47e2-986b-322a934619f9.png"
+---
+
+# Difference Between == & === in JavaScript
+
+Equality operators in JavaScript (double equals (**==**) and triple equals (**===**) ) are used to compare two values yet both operators are used for a different purpose:
+
+- **== :** Converts the values to the same data type and then try to compare them.
+  
+- **=== :** Compares the value and the datatype.
+  
+
+
+
+**For example:**
+
+```javascript
+let x = 5;
+let y = "5";
+
+// Double equals
+if (x == y) {
+    console.log("Equals");
+} else {
+    console.log("Not equal");
+}
+
+// Tripple equalts
+if (x === y) {
+    console.log("Equals");
+} else {
+    console.log("Not equal");
+}
+```
+
+**Would result in:**
+
+```text
+Equals // Double equals
+Not equal // Tripple equals
+```
+
+**Breakdown:**
+
+1. `x` is declared with the value of 5 **as an integer**.
+  
+2. `y` is declared with the value of "5" **as a string**.
+  
+3. We check if `x == y` (With double quotes), this effectively changes y from a string to an integer and then checks if the values are equal (Thus making the result **True**).
+  
+  ```text
+  // The first output
+  Equals
+  ```
+  
+4. We check if `x === y` (With tipple quotes), this compares both the **values** and the **data types**, meaning if we try to compare a string to an int it would result in **False**.
+  
+  ```text
+  // The second output
+  Not equal
+  ```
