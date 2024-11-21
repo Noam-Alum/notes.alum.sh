@@ -74,7 +74,7 @@ export default function Search() {
           </DialogHeader>
           {filteredResults.length == 0 && searchedInput && (
             <p className="text-muted-foreground mx-auto mt-2 text-sm">
-              Can't find,{" "}
+              Can&#39;t find,{" "}
               <span className="text-primary">{`"${searchedInput}"`}</span>
               {" "}ask ChatGPT or sm 🙄
             </p>
