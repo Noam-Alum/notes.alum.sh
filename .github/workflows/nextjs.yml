@@ -82,6 +82,8 @@ jobs:
           path: ./out
       - name: Create CNAME file
         run: echo "notes.alum.sh" > out/CNAME
+      - name: Add next
+        run: mv .next out/_next
         
       - name: Deploy to GitHub Pages
         uses: crazy-max/ghaction-github-pages@v4
