@@ -80,6 +80,8 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./out
+      - name: Create CNAME file
+        run: echo "notes.alum.sh" > out/CNAME
         
       - name: Deploy to GitHub Pages
         uses: crazy-max/ghaction-github-pages@v4
