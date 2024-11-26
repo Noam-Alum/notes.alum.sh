@@ -56,7 +56,7 @@ export const ROUTES: EachRoute[] = [
         href: "/BIND"
       }, {
       	title: "The 48 Laws of Power",
-	href: "/48_laws_of_power/index.html"
+	href: "/48_laws_of_power"
       }
     ]
   }, {
