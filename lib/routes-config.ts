@@ -47,6 +47,26 @@ export const ROUTES: EachRoute[] = [
       }
     ]
   }, {
+    title: "Harel",
+    href: "/Harel",
+    noLink: true,
+    items: [
+      {
+        title: "Website",
+        href: "/website",
+	items: [
+	  {
+	    title: "Accessing the admin panel",
+	    href: "/how-to-login"
+	  }
+	]
+      },
+      {
+        title: "Mail Administration from the command line",
+        href: "/mail"
+      }
+    ]
+  }, {
     title: "General",
     href: "/General",
     noLink: true,

@@ -5,7 +5,7 @@ description: "EIGRP overcomes the faults of other distance vector routing protoc
 
 # EIGRP - Enhanced Interior Gateway Routing Protocol
 
-**EIGRP** overcomes the faults of other distance vector routing protocols such as **RIP**, with features such as *unequal-cost load balancing* and it uses ***DUAL*** algorithm to determine network paths, unlike other *distance vector* routing protocols, EIGRP uses factors other (yet included) than **hop count**.
+**EIGRP** overcomes the faults of other distance vector routing protocols such as **RIP**, with features such****as *unequal-cost load balancing* and it uses ***DUAL*** algorithm to determine network paths, unlike other *distance vector* routing protocols, EIGRP uses factors other (yet included) than **hop count**.
 
 ## Autonomous Systems (AS)
 
@@ -17,16 +17,14 @@ EIGRP calculates the best path, and alternative *loop free* paths based on a met
 
 While calculation those paths we come across different terms such as:
 
-| **Term**                                                                 | **Definition**                                                                                                                                                                                                          |
-| ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Successor route                                                          | The route with the lowest path metric to reach a destination.                                                                                                                                                           |
-| Successor                                                                | The first next-hop router for the successor route.                                                                                                                                                                      |
-| Feasible Adistance (FD)                                                   | The metric value for the lowest-metric path to reach a destination. The feasible distance is calculated locally using *Path Metric Calculation*. |                                                                                                                                                                                                                         
-| Reported distance (RD)                                                   | The distance reported by a router to reach a prefix. The reported distance value is the feasible distance for the *advertising router*.             |                                                                                                                                                                                                                         
-| Feasibility condition                                                    | A condition under which, for a route to be considered a backup route, the reported distance received for that route must be less than the feasible distance calculated locally. This logic guarantees a loop-free path. |
-| Feasible successor                                                       | A route that satisfies the feasibility condition and is maintained as a backup route. The feasibility condition ensures that the backup route is loop free.                                                             |
-
-
+| **Term**                | **Definition**                                                                                                                                                                                                          |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Successor route         | The route with the lowest path metric to reach a destination.                                                                                                                                                           |
+| Successor               | The first next-hop router for the successor route.                                                                                                                                                                      |
+| Feasible Adistance (FD) | The metric value for the lowest-metric path to reach a destination. The feasible distance is calculated locally using *Path Metric Calculation*.                                                                        |
+| Reported distance (RD)  | The distance reported by a router to reach a prefix. The reported distance value is the feasible distance for the *advertising router*.                                                                                 |
+| Feasibility condition   | A condition under which, for a route to be considered a backup route, the reported distance received for that route must be less than the feasible distance calculated locally. This logic guarantees a loop-free path. |
+| Feasible successor      | A route that satisfies the feasibility condition and is maintained as a backup route. The feasibility condition ensures that the backup route is loop free.                                                             |
 
 ## Tables
 
@@ -91,7 +89,7 @@ Metric calculation uses *bandwidth* and *delay* by default, but it can include *
 **EIGRP classic metric formula:**
 
 $$
- [(K1 * BW + + K3 * Delay) ] K2 * BW
+[(K1 * BW + + K3 * Delay) ] K2 * BW
 256 Load
 K5
 K4 + Reliability
@@ -99,17 +97,11 @@ $$
 
 EIGRP use **K values** (K1, K2, etc...) to define which factors are used in the formula and how strong of an effect a factor has when calculating the metric.
 
-
-
 **BW** represents the slowest link in the path scaled to a 10 Gbps link, so for example, 10 Mbps is 0.01 Gbps.
 
 >  Link speed is collected via the configured bandwidth on the interfaces.
 
-
-
 **Delay** is the total measure of delay in the path, measured in the tens of microseconds.
-
-
 
 > Due to this being unrelated to what I need to do, I decided to not continue to write about the metric. (Issacs fault)
 
@@ -125,6 +117,7 @@ EIGRP use **K values** (K1, K2, etc...) to define which factors are used in the 
 We can take a backup route and turn it to an active route even trough the metric is lower, essentialy turning the feasible successor to a successor.
 
 It can achive that by using the following function:
+
 ```javascript
 FD(Active route) * Variance >= FD(Backup route)
 ```
@@ -132,15 +125,42 @@ FD(Active route) * Variance >= FD(Backup route)
 ### For example:
 
 To calculate the needed variance needed to create unequal loadbalancing we can use the following calculation:
+
 ```javascript
 FD(Active route) / FD(Backup route) = Needed variance
 ```
 
 ![Hero](/Hoshen/routing/eigrp/eigrp.png)
 
-
 ## Schema
 
-In a normal routing table, each route is represented in its own section, for example:
+סכמה היא הדרך שלנו לצמצם שורות בטבלת ניתוב, היא בעצם סוכמת את כל הניתובים לפי ה **classfull** שלהם, כלומר:
 
-> To be continued
+בכדי לבטל סכמה יש להשתמש בפקודה `no auto-summary`.
+
+כאשר עושים סכמה אוטומאטית, נוצרת שורה שבה רשום **"is a summary"** ובסוף כתוב **null0**.
+
+### סכמה ידנית
+
+כדי לסכום ידנית:
+
+1. להעתיק את הכתובת IP
+
+2. לתרגם לבינארי
+
+3. לבדוק כמה ביטים תואמים
+
+
+
+192.168.1.0: **11000000 10101000 000000**01 00000000
+192.168.2.0: **11000000 10101000 000000**10 00000000
+192.168.3.0: **11000000 10101000 000000**11 00000000
+
+
+
+
+יש לנו 22 ביטים תואמים, לכן הפרפיקס הוא 22:
+
+192.168.0.0/22
+
+ip summery-address eigrp 1 192.168.0.0
