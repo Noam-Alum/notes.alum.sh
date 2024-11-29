@@ -58,7 +58,11 @@ export const ROUTES: EachRoute[] = [
 	  {
 	    title: "Accessing the admin panel",
 	    href: "/how-to-login"
-	  }
+	  }, {
+            title: "Adding posts",
+            href: "/how-to-add-posts"
+          }
+
 	]
       }
     ]
