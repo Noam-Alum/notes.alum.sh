@@ -60,10 +60,6 @@ export const ROUTES: EachRoute[] = [
 	    href: "/how-to-login"
 	  }
 	]
-      },
-      {
-        title: "Mail Administration from the command line",
-        href: "/mail"
       }
     ]
   }, {
