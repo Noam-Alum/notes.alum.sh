@@ -214,7 +214,10 @@ export const ROUTES: EachRoute[] = [
           }, {
             title: "System variables",
             href: "/system_variables"
-          }
+          }, {
+	    title: "Handling variables",
+	    href: "/Handling_variables"
+	  }
         ]
       }
     ]
