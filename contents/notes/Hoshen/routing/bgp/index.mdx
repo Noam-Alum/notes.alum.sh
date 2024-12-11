@@ -65,3 +65,62 @@ Used within an **AS**, **BGP** routers in the same **AS** share routing informat
 Used between different **ASes**, **EBGP** (**E**xternal BGP) allows **BGP** routers in different **ASes** to share routing information and establish connectivity across the internet.
 
 **BGP** is a powerful protocol for managing routing between **ASes** on the internet, by leveraging a combination of **metrics**, **peer relationships**, and **dynamic routing**, it ensures that **ISPs** (or organizations) can efficiently and reliably deliver traffic across the global internet. 
+
+
+
+## Configuring IBGP - Juniper
+
+> This is what I understood ;)
+
+### BGP Groups
+
+*BGP groups* allow you to organize **multiple BGP neighbors** (peers) into a logical group, so that common configurations can be applied to all peers in that group.
+
+This simplifies the management of BGP settings and improves scalability, especially in large networks.
+
+#### Use Cases
+
+1. **Simplified Configuration:**
+   - Instead of configuring each BGP peer individually, you can define common settings for multiple peers in a group.
+   - Example: Apply a route map or prefix filter to all peers in a group with a single configuration.
+
+2. **Improved Scalability:**
+   - In large networks, managing dozens or hundreds of peers is easier when they share the same settings in a group.
+   - Example: A group for external BGP peers (EBGP) with common policies like AS-path filters.
+
+3. **Consistency Across Peers:**
+   - Ensures that changes to group configurations automatically apply to all peers in that group.
+   - Example: Changing a route reflector configuration for a group will update all related peers simultaneously.
+
+### Steps to configure IBGP
+
+<Note type="note">
+Change values relative to the router you are configuring.
+</Note>
+
+<Stepper>
+  <StepperItem title="Set the AS number">
+    ```javascript
+    set routing-options autonomous-system <AS-NUMBER>
+    ```
+  </StepperItem>
+  <StepperItem title="Advertise the local address">
+    ```javascript
+    set protocols bpg local-address <IP-ADDRESS>
+    ```
+  </StepperItem>
+  <StepperItem title="Set mode (internal/external)">
+    ```javascript
+    set protocols bgp group [GROUP-NAME] type internal
+    ```
+  </StepperItem>
+  <StepperItem title="Set peers">
+    ```javascript
+    set protocols bgp group [GROUP-NAME] neighbor [IP-ADDRESS]
+    ```
+  </StepperItem>
+</Stepper>
+
+<Note type="warning" title="Warning">
+  The *group name* is the same across all routers in the topology.
+</Note>
