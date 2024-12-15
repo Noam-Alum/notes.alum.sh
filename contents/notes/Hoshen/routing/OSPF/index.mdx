@@ -1,0 +1,75 @@
+<div dir="rtl">
+
+# OSPF
+
+**OSPF** הוא פרוטקול מסוג **link state** המשתמש באלגוריטם בשם **דיאקסטרה** והוא מכניס את המסלול עם ה **cost** המצתבר הנמוך ביותר לטבלת הניתוב.
+
+### יש ל OSPF שלושה טבלאות:
+
+1. **טבלת ניתוב:** מחזיקה את כל המסלולים של ה**metric** שלהם הכי נמוך.
+
+2. **טבלת שכנים:** טבלה זו מחזיקה את הנתבים איתם קיימים יחסי שכנות.
+
+3. **טבלת טופולוגיה:** טבלה זו מציגה את ה**Database** של הנתב.
+
+### קיימות חמישה סוגי הודעות:
+
+| **הודעה** | **תיאור**                                                                                                          |
+| --------- | ------------------------------------------------------------------------------------------------------------------ |
+| **Hello** | ליצור וליצר יחסי שכנות; האינטרבל של הודעה זו ברשתות **P2P** ו **MULI ACCESS** הוא 10, ברשתות **NBMA** הוא יהיה 30. |
+| **DBD**   | תקציר של ה Database של הנתב.                                                                                       |
+| **LSR**   | בקשה למידע מנתב אחר.                                                                                               |
+| **LSU**   | תשובה לבקשת מידע.                                                                                                  |
+| **LSA**   | פרסום מידע.                                                                                                        |
+
+## איך עובד פרוטוקול מסוג link state?
+
+1. כל נתב לומד על הקישורים שמחוברים אליו ישירות.
+
+2. שולח הודעת **HELLO** לראות את המכשירים המחוברים אליו ישירות.
+
+3. כל נתב מתחיל לבנות חבילה שנקראת **LSP** שבה מוחזק מידע על כל אחד מהממשקים שלו.
+   
+   - Neighbor ID
+   
+   - Line type
+   
+   - Bandwidth
+
+4. כל נתב שולח את הודעת ה **LSP** לכל הממשקים שלו.
+
+5. כל נתב בונה את ה **Database** שלו.
+
+### שלבי יצירת יחסי שכנות ב OSPF
+
+</div>
+
+<Stepper>
+    <StepperItem title="DOWN">
+        Nothing much.
+    </StepperItem>
+    <StepperItem title="INIT">
+        Hello packets are sent.
+    </StepperItem>
+    <StepperItem title="Two way">
+        Hello packets being sent back.
+    </StepperItem>
+    <StepperItem title="Exstart">
+        The DR and BDR are elected, and the primary-secondary relationship is established for sequence number assignment.
+    </StepperItem>
+    <StepperItem title="Exchange">
+       OSPF routers exchange DBD packets containing LSA headers, compare databases, and send link-state request and update packets. 
+    </StepperItem>
+    <StepperItem title="Loading">
+      Routers exchange link-state information via request and update packets, ensuring all LSAs are current. 
+    </StepperItem>
+    <StepperItem title="Full">
+       Routers reach full adjacency, with synchronized LSAs and databases, indicating successful neighbor relationships. 
+    </StepperItem>
+</Stepper>
+
+<div dir="rtl">
+
+![](/Hoshen/routing/ospf/1.jpg)
+
+</div>

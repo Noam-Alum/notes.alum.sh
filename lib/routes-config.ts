@@ -28,7 +28,11 @@ export const ROUTES: EachRoute[] = [
           {
             title: "EIGRP",
             href: "/eigrp"
-          }
+          },
+	  {
+	    title: "OSPF",
+	    href: "/OSPF"
+	  }
         ]
       }
     ]

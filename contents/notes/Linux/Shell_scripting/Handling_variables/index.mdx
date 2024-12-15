@@ -5,21 +5,21 @@ description: "In Bash scripting, variables are used to store and manipulate data
 
 ## Assign Default Values: `${parameter:=word}`
 
-### Short Explanation:
+**Short Explanation:**
 This form assigns a default value to a variable if it is unset or null.
 
-### Syntax:
+**Syntax:**
 ```bash
 ${parameter:=word}
 ```
 
-### Example:
+**Example:**
 ```bash
 var=""
 echo ${var:="default_value"}  # Since var is empty, it will be assigned 'default_value'
 ```
 
-### Result:
+**Result:**
 ```
 default_value
 ```
@@ -28,21 +28,21 @@ default_value
 
 ## Display Error if Null or Unset: `${parameter:?word}`
 
-### Short Explanation:
+**Short Explanation:**
 This form displays an error message and exits the script if the variable is null or unset. If the variable is set, it returns the value of the variable.
 
-### Syntax:
+**Syntax:**
 ```bash
 ${parameter:?word}
 ```
 
-### Example:
+**Example:**
 ```bash
 var=""
 echo ${var:?"Error: var is null or unset"}  # Will print the error message because var is empty
 ```
 
-### Result:
+**Result:**
 ```
 Error: var is null or unset
 ```
@@ -51,21 +51,21 @@ Error: var is null or unset
 
 ## Use Alternate Value: `${parameter:+word}`
 
-### Short Explanation:
+**Short Explanation:**
 This form substitutes `word` if the variable is set and non-null. Otherwise, it substitutes nothing.
 
-### Syntax:
+**Syntax:**
 ```bash
 ${parameter:+word}
 ```
 
-### Example:
+**Example:**
 ```bash
 var="value"
 echo ${var:+"substitute"}  # Since var is set, it will print 'substitute'
 ```
 
-### Result:
+**Result:**
 ```
 substitute
 ```
@@ -74,22 +74,22 @@ substitute
 
 ## Substring Expansion: `${parameter:offset}`, `${parameter:offset:length}`
 
-### Short Explanation:
+**Short Explanation:**
 This allows you to extract a substring from a variable starting from the specified `offset`. The `length` is optional and limits the number of characters returned.
 
-### Syntax:
+**Syntax:**
 ```bash
 ${parameter:offset}
 ${parameter:offset:length}
 ```
 
-### Example:
+**Example:**
 ```bash
 var="Hello, World!"
 echo ${var:7}  # Starting from the 7th character to the end, prints 'World!'
 ```
 
-### Result:
+**Result:**
 ```
 World!
 ```
@@ -98,23 +98,23 @@ World!
 
 ## Remove Matching Prefix: `${parameter#word}`, `${parameter##word}`
 
-### Short Explanation:
+**Short Explanation:**
 These forms remove the specified prefix pattern from the value of the variable. `#` removes the shortest match, while `##` removes the longest match.
 
-### Syntax:
+**Syntax:**
 ```bash
 ${parameter#word}
 ${parameter##word}
 ```
 
-### Example:
+**Example:**
 ```bash
 var="prefix_file.txt"
 echo ${var#prefix_}  # Removes the shortest match, prints 'file.txt'
 echo ${var##prefix_} # Removes the longest match, prints 'file.txt'
 ```
 
-### Result:
+**Result:**
 ```
 file.txt
 file.txt
@@ -124,23 +124,23 @@ file.txt
 
 ## Remove Matching Suffix: `${parameter%word}`, `${parameter%%word}`
 
-### Short Explanation:
+**Short Explanation:**
 These forms remove the specified suffix pattern from the value of the variable. `%` removes the shortest match, while `%%` removes the longest match.
 
-### Syntax:
+**Syntax:**
 ```bash
 ${parameter%word}
 ${parameter%%word}
 ```
 
-### Example:
+**Example:**
 ```bash
 var="file.txt.suffix"
 echo ${var%.*}   # Removes the shortest match for '.'
 echo ${var%%.*}  # Removes the longest match for '.'
 ```
 
-### Result:
+**Result:**
 ```
 file.txt
 file
@@ -150,22 +150,22 @@ file
 
 ## Pattern Substitution: `${parameter/pattern/string}`
 
-### Short Explanation:
+**Short Explanation:**
 This form replaces the first occurrence of `pattern` with `string`. If `pattern` starts with `/`, all occurrences are replaced.
 
-### Syntax:
+**Syntax:**
 ```bash
 ${parameter/pattern/string}
 ```
 
-### Example:
+**Example:**
 ```bash
 var="apple banana apple"
 echo ${var/apple/orange}    # Replaces the first 'apple' with 'orange'
 echo ${var//apple/orange}   # Replaces all 'apple' with 'orange'
 ```
 
-### Result:
+**Result:**
 ```
 orange banana apple
 orange banana orange
@@ -175,10 +175,10 @@ orange banana orange
 
 ## Case Modification: `${parameter^}`, `${parameter^^}`, `${parameter,}`, `${parameter,,}`
 
-### Short Explanation:
+**Short Explanation:**
 These forms modify the case of the characters in a variable, either converting them to uppercase or lowercase. `^` changes the first matched character, while `^^` changes all matched characters.
 
-### Syntax:
+**Syntax:**
 ```bash
 ${parameter^}    # First character to uppercase
 ${parameter^^}   # All characters to uppercase
@@ -186,7 +186,7 @@ ${parameter,}    # First character to lowercase
 ${parameter,,}   # All characters to lowercase
 ```
 
-### Example:
+**Example:**
 ```bash
 var="hello world"
 echo ${var^}   # Converts first character to uppercase
@@ -195,7 +195,7 @@ echo ${var,}   # Converts first character to lowercase
 echo ${var,,}  # Converts all characters to lowercase
 ```
 
-### Result:
+**Result:**
 ```
 Hello world
 HELLO WORLD
@@ -207,10 +207,10 @@ hello world
 
 ## Parameter Transformation: `${parameter@operator}`
 
-### Short Explanation:
+**Short Explanation:**
 This form allows you to transform or inspect a variable in various ways based on the `operator` used.
 
-### Syntax:
+**Syntax:**
 ```bash
 ${parameter@Q}  # Quote the value
 ${parameter@E}  # Expand escape sequences
@@ -219,14 +219,14 @@ ${parameter@A}  # Display assignment statement
 ${parameter@a}  # Display attribute flags
 ```
 
-### Example:
+**Example:**
 ```bash
 var="Hello world"
 echo ${var@Q}  # Prints 'Hello world' (quoted for reuse)
 echo ${var@E}  # Expands escape sequences (if any)
 ```
 
-### Result:
+**Result:**
 ```
 'Hello world'
 Hello world
