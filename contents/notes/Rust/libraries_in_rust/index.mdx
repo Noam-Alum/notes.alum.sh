@@ -1,0 +1,46 @@
+---
+title: Libraries in Rust
+description: "By default, Rust has a set of items defined in the standard library that it brings into the scope of every program."
+---
+
+To bring a library *into scope* we'll have to use the `use` statement, .e.g:
+
+```rust
+use <LIBRARY_NAME>;
+```
+
+At the begging of the file.
+
+This would *bring into scope* only the items that are included in the **prelude**, and if for example I would like to *bring into scope* libraries that are not in the **prelude** I would have to call them like this:
+
+```rust
+use <LIBRARY_NAME>::<ITEM_NAME>;
+```
+
+A good example for this would be the **std** library, when I want to use *input/output*
+
+operations I would have to call a library outside of the **prelude** named **io**, and it looks like this:
+
+```rust
+use std::io;
+```
+
+Now, for instance I can take input from users:
+
+```rust
+use std::io;
+
+fn main() {
+    println!("Guess the number!");
+
+    println!("Please input your guess.");
+
+    let mut guess = String::new();
+
+    io::stdin()
+        .read_line(&mut guess)
+        .expect("Failed to read line");
+
+    println!("You guessed: {}", guess);
+}
+```

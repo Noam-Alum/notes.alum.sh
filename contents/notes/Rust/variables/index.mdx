@@ -1,0 +1,36 @@
+---
+title: Handling variables
+---
+
+By default variables in **Rust** are *immutable*, meaning you cannot change them (like constants), to make a variable mutable we need to use the `mut` statement.
+
+<Note type="note">
+To create a new variable we use the `let` statement.
+</Note>
+
+For instance:
+
+```rust
+let apples = 5; // immutable
+mut let peers = 5; //mutable
+```
+
+### Creating empty strings
+
+To create a string we need to *bring into scope* the **std** library, we can do that by simply adding:
+
+```rust
+use std;
+```
+
+To the top of out script.
+
+Next we need to declare a variable, and assign to it an instance of a `String`, using the **String** library (its in the **prelude**):
+
+```rust
+let mute guess = String::new();
+```
+
+<Note type="note" title="FYI">
+`String` is a **string** type that is growable; [More on String](https://doc.rust-lang.org/std/string/struct.String.html).
+</Note>

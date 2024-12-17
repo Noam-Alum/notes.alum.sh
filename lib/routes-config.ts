@@ -37,6 +37,20 @@ export const ROUTES: EachRoute[] = [
       }
     ]
   }, {
+    title: "Rust",
+    href: "/Rust",
+    noLink: true,
+    items: [
+      {
+        title: "Libraries in Rust",
+        href: "/libraries_in_rust"
+      },
+      {
+        title: "Handling variables",
+        href: "/variables"
+      }
+    ]
+  }, {
     title: "cPanel",
     href: "/cPanel",
     noLink: true,
