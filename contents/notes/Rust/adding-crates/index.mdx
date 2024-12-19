@@ -1,0 +1,105 @@
+---
+title: "Adding crates"
+description: "We can add dependencies to Rust via Cargo, by simply modifying the cargo.toml file in our project."
+---
+
+> Dependencies in Rust are called **crates**.
+
+For this sake lets add the **[rand](https://crates.io/crates/rand)** crate:
+
+cargo.toml:
+
+```
+[dependencies]
+rand = "0.8.5"
+```
+
+After saving the changes, we can run `cargo build` to fetch the crates from [crates.io](https://crates.io/) and finally save the matching versions for the respective crate in the *cargo.lock* file.
+
+<Note type="note" title="tip">
+  You can update crates versioning by simply running:
+  ```bash
+  cargo update
+  ```
+  In the project directory
+</Note>
+
+Now that we have the **rand** crate installed and ready to use, we can bring it to scope in our code like this:
+
+```rust
+use rand::Rng; // Our library
+use std::io;
+```
+
+> Notice that we brought to scope the **Rng** trait. (Which was not in the prelude)
+
+And we can write a simple guessing game:
+
+```rust
+use std::io;
+use rand::Rng;
+
+fn main() {
+    println!("Guess the number!");
+
+    println!("Please input your guess.");
+
+    let number :i32 = rand::thread_rng().gen_range(0..=10 );
+
+    let mut guess_string :String = String::new();
+    io::stdin()
+        .read_line(&mut guess_string)
+        .expect("Failed to read line");
+
+    // Convert to i32
+    let guess :i32 = guess_string.trim().parse().expect("Please type a number!");
+
+    if number == guess {
+        println!("You guessed the secret number.");
+    } else {
+        println!("{} is not the secret number ({}).", guess, number);
+    }
+}
+```
+
+---
+
+Lets explain this line in the code:
+
+```rust
+let number :i32 = rand::thread_rng().gen_range(0..=10 );
+```
+
+<Stepper>
+  <StepperItem title="Initiating a variable">
+    First we initiate an *i32* integer variable using `:i32` after variable declaration
+  </StepperItem>
+  <StepperItem title="Getting a random number">
+    Then we call the **thread_rng** function from the **rand** library, that would retrieve a random number using complex calculations based on per system bases ensuring a random number is returned.
+  </StepperItem> 
+  <StepperItem title="Setting the range">
+    Now that we have a random number we can set the range as follows:
+    ```rust
+    gen_range(<START>..=<END>);
+    ```
+    For example:
+    ```rust
+    gen_range(0..=10);
+    ```
+  </StepperItem> 
+ </Stepper>
+
+
+Another *complex-ish* line can be this line:
+
+```rust
+let guess :i32 = guess_string.trim().parse().expect("Please type a number!");
+```
+
+As we know we cant take `i32` variables from the `stdin` function, we can only take strings, to *type cast* from **String** to **int** we need to do a couple of things:
+
+1. Trim the data to remove any leading/trailing white-space. (`.trim()`)
+
+2. Parse the data to convert the string to an integer. (`.parse()`)
+
+3. Add error handling in case user input was not a digit. (`.expect`)

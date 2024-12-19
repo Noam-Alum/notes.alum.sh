@@ -48,6 +48,12 @@ export const ROUTES: EachRoute[] = [
       {
         title: "Handling variables",
         href: "/variables"
+      }, {
+        title: "User input",
+        href: "/user-input"
+      }, {
+	title: "Adding crates",
+	href: "/adding-crates"
       }
     ]
   }, {
