@@ -1,5 +1,5 @@
 ---
-title: Bash Variables
+title: Bash Variables  
 description: "In Bash scripting, variables are used to store and manipulate data. There are various forms of variable expansion that help you transform and manage the data in different ways. Below is a guide covering some important forms of Bash variable expansions."
 ---
 
@@ -230,4 +230,73 @@ echo ${var@E}  # Expands escape sequences (if any)
 ```
 'Hello world'
 Hello world
+```
+
+---
+
+## Get the Length of a Variable: `${#parameter}`
+
+**Short Explanation:**
+This form returns the length of the value stored in a variable.
+
+**Syntax:**
+```bash
+${#parameter}
+```
+
+**Example:**
+```bash
+var="Hello, World!"
+echo ${#var}   # Returns the length of the string
+```
+
+**Result:**
+```
+13
+```
+
+---
+
+## Default Value with `:-`: `${parameter:-value}`
+
+**Short Explanation:**
+If the variable is unset or null, this form returns the specified default value (`value`). If the variable is set and not null, it returns the value of the variable.
+
+**Syntax:**
+```bash
+${parameter:-value}
+```
+
+**Example:**
+```bash
+var=""
+echo ${var:-"default"}  # Since var is empty, it returns 'default'
+```
+
+**Result:**
+```
+default
+```
+
+---
+
+## Check if Variable is Set: `${parameter:+value}`
+
+**Short Explanation:**
+This form checks if the variable is set and non-null. If so, it returns `value`, otherwise, it returns nothing.
+
+**Syntax:**
+```bash
+${parameter:+value}
+```
+
+**Example:**
+```bash
+var="test"
+echo ${var:+"non-null"}   # Prints 'non-null' because var is set and non-empty
+```
+
+**Result:**
+```
+non-null
 ```
