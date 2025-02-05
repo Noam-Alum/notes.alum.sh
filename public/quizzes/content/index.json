@@ -1,0 +1,15 @@
+{
+    "headline": "Quizzes",
+    "description": "This website lets you take quizzes",
+    "cards": [
+      {
+        "id": 1,
+        "question": "Choose a quize",
+        "options": [
+          "<a href='/quizzes/index.html?questions-url=/quizzes/content/lpi-exam.json'>LPI practice exam</a>",
+          "<a href='/quizzes/index.html?questions-url=/quizzes/content/classfull-networking-quiz.json'>Classfull networking quiz</a>"
+        ],
+        "answer": []
+      }
+    ]
+}
