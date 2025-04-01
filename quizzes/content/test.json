@@ -1,0 +1,22 @@
+{
+    "headline": "LPI Practice Exam",
+    "description": "lpi linux essentials 010-160 practice exam",
+    "cards": [
+        {
+            "id": 1,
+            "question": "What information is stored in /etc/passwd? (Choose three correct answers.)",
+            "options": [
+                "The user's storage space limit",
+                "The numerical user ID",
+                "The username",
+                "The encrypted password",
+                "The user\\s default shell"
+            ],
+            "answer": [
+                "The numerical user ID",
+                "The username",
+                "The user\u2019s default shell"
+            ]
+        }
+    ]
+  }
